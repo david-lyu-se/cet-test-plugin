@@ -18,6 +18,7 @@ func CreateFile(dirPath string, fileName string) *os.File {
 		if newFile, err := os.Create(dirPath + fileName); err != nil {
 			utilities.HandleFatalError(err, true, "File "+dirPath+fileName+" not created")
 		} else {
+			newFile.WriteString("[]")
 			return newFile
 		}
 	} else {

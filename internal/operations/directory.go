@@ -1,6 +1,7 @@
 package operations
 
 import (
+	"fmt"
 	"os"
 	"test-cet-wp-plugin/internal/utilities"
 )
@@ -18,11 +19,13 @@ func CreateDirectory(dirPath string, fileName string, isParentDir bool) bool {
 	isFileCreated := false
 	isDirectoryCreated := false
 
-	if _, err := os.Stat(dirPath); os.IsExist(err) {
-		mkdirErr := os.Mkdir(dirPath, 0777)
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		fmt.Println(dirPath)
+		mkdirErr := os.MkdirAll(dirPath, 0777)
 		// Error creating parent dir
 		if mkdirErr != nil {
-			utilities.HandleFatalError(err, true, "An error creating config"+dirPath)
+			fmt.Println("mkdirErr")
+			utilities.HandleFatalError(err, true, "")
 		}
 		isDirectoryCreated = true
 	}
