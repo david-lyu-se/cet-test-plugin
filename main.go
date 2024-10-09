@@ -3,30 +3,23 @@ package main
 import (
 	"log"
 	"os"
-	"test-cet-wp-plugin/internal/model/structs"
 	"test-cet-wp-plugin/internal/operations"
+	"test-cet-wp-plugin/internal/tui"
 	"test-cet-wp-plugin/internal/utilities"
-	// tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
-
-	// tea.NewProgram();
-	// Use bubble tea here
 	log.Println("Checking if config file exists in User's Profile.")
 	file := initConfigFile()
 
 	if file != nil {
-		//File read writes here
-		// var userEnvChoice = 0
+		defer file.Close()
 		environments := operations.ReadFile(file)
 
-		handleEnvironments(*environments)
+		log.Println("Environments okay starting tui...")
+		tui.StartTea(environments)
 
-		//bubble tea choose environment
-		// userEnvChoice = 1
 	}
-
 }
 
 func initConfigFile() *os.File {
@@ -48,15 +41,11 @@ func initConfigFile() *os.File {
 	if !isFileCreated {
 		//check if file exists
 		file = operations.CreateFile(configRootPath+configDir, configFileName)
+	} else {
+		file, err = os.Open(configRootPath + configDir + configFileName)
+		if err != nil {
+			utilities.HandleFatalError(err, true, "File exists but could not open")
+		}
 	}
 	return file
-}
-
-func handleEnvironments(environments structs.Environments) {
-
-}
-
-func initializePlugins() {
-	// var plugin = nil
-
 }
