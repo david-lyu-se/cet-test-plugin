@@ -17,7 +17,7 @@ type ParentModel struct {
 }
 
 // Todo not sure if this is needed
-type updateListMsg struct{}
+type UpdateListMsg struct{}
 
 func (parentModel ParentModel) Init() tea.Cmd {
 	//future move operations file create and read here
@@ -35,7 +35,7 @@ func (parentModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		top, right, bottom, left := variables.DocStyle.GetMargin()
 		parentModel.List.SetSize(msg.Width-left-right, msg.Height-top-bottom)
 	// custom msg for updating Item List after creatihng new Environment
-	case updateListMsg:
+	case UpdateListMsg:
 	// tea.msg for keypress
 	case tea.KeyMsg:
 		if key.Matches(msg, variables.Keymap.Enter) {

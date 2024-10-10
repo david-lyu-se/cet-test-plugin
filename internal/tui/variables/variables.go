@@ -15,7 +15,8 @@ const (
 )
 
 var (
-	ParentProgram     *tea.Program
-	ApplicationsLists *structures.Applications
-	WindowSize        tea.WindowSizeMsg
+	ParentProgram *tea.Program
+	// ApplicationsLists *structures.Applications
+	Conf       *structures.ConfFile
+	WindowSize tea.WindowSizeMsg
 )

@@ -11,13 +11,14 @@ import (
 func main() {
 	log.Println("Checking if config file exists in User's Profile.")
 	file := initConfigFile()
+	file.Sync()
 
 	if file != nil {
 		defer file.Close()
-		apps := operations.ReadFile(file)
+		confFile := operations.ReadFile(file)
 
 		log.Println("Environments okay starting tui...")
-		tui.StartTea(apps)
+		tui.StartTea(confFile)
 
 	}
 }

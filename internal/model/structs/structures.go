@@ -13,3 +13,9 @@ type Application struct {
 func (e Application) FilterValue() string {
 	return e.Name
 }
+
+type ConfFile struct {
+	Apps       *Applications
+	WorkingDir string
+	PluginDir  string
+}

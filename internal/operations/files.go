@@ -18,7 +18,13 @@ func CreateFile(dirPath string, fileName string) *os.File {
 		if newFile, err := os.Create(dirPath + fileName); err != nil {
 			utilities.HandleFatalError(err, true, "File "+dirPath+fileName+" not created")
 		} else {
-			newFile.WriteString("[]")
+			newFile.WriteString("{ \"Apps\": [],\"WorkingDir\":\"\",\"PluginDir\":\"\" }")
+
+			//file pointer reset
+			if _, err := newFile.Seek(0, io.SeekStart); err != nil {
+				utilities.HandleFatalError(err, true, "Unable to reset file pointer")
+			}
+
 			return newFile
 		}
 	} else {
@@ -35,20 +41,20 @@ func CloseFile(file *os.File) {
 	}
 }
 
-func ReadFile(file *os.File) *structures.Applications {
-	var apps structures.Applications
+func ReadFile(file *os.File) *structures.ConfFile {
+	var confFile structures.ConfFile
 	byte, err := io.ReadAll(file)
 	if err != nil {
 		utilities.HandleFatalError(err, true, "Could not convert file to bytes")
 	}
 
-	err = json.Unmarshal(byte, &apps)
+	err = json.Unmarshal(byte, &confFile)
 
 	if err != nil {
-		utilities.HandleFatalError(err, true, "Could not parse file")
+		utilities.HandleFatalError(err, true, "Could not parse json")
 	}
 
-	return &apps
+	return &confFile
 }
 
 func WriteFile(file *os.File) {

@@ -9,10 +9,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func StartTea(apps *structures.Applications) {
-	variables.ApplicationsLists = apps
+func StartTea(conf *structures.ConfFile) {
+	variables.Conf = conf
 
-	model, _ := models.InitParent(apps)
+	model, _ := models.InitParent(conf.Apps)
 
 	ParentProgram := tea.NewProgram(model, tea.WithAltScreen())
 
