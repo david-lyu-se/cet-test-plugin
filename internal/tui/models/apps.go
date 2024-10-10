@@ -1,23 +1,27 @@
-package bubbletea
+package models
 
 import (
+	structures "test-cet-wp-plugin/internal/model/structs"
+
 	"github.com/charmbracelet/bubbles/filepicker"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type EnvironmentInputs struct {
+type AppModel struct {
 	file         filepicker.Model
 	selectedFile string
 	Quiting      bool
 	err          error
 	/* Name of App */
+	input textinput.Model
 }
 
-func (EnvironmentInputs) init() tea.Cmd {
+func (AppModel) init() tea.Cmd {
 	return nil
 }
 
-func (EnvironmentInputs) update() {
+func (AppModel) update() {
 	// ask user for name of app/environment
 	//
 	// double check
@@ -26,10 +30,10 @@ func (EnvironmentInputs) update() {
 
 }
 
-func (EnvironmentInputs) view() {
+func (AppModel) view() {
 
 }
 
-func InitEnvironmentTUI() {
+func InitAppModel(apps structures.Applications) {
 
 }

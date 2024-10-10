@@ -1,7 +1,7 @@
 package variables
 
 import (
-	"test-cet-wp-plugin/internal/model/structs"
+	structures "test-cet-wp-plugin/internal/model/structs"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -15,7 +15,7 @@ const (
 )
 
 var (
-	ParentProgram   *tea.Program
-	EnvironmentsRef *structs.Environments
-	WindowSize      tea.WindowSizeMsg
+	ParentProgram     *tea.Program
+	ApplicationsLists *structures.Applications
+	WindowSize        tea.WindowSizeMsg
 )

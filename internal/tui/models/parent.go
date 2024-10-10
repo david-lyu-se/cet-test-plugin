@@ -1,23 +1,22 @@
-package bubbletea
+package models
 
 import (
-	"test-cet-wp-plugin/internal/model/structs"
+	structures "test-cet-wp-plugin/internal/model/structs"
 	"test-cet-wp-plugin/internal/tui/variables"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type ParentModel struct {
 	Mode         variables.Mode
 	List         list.Model
-	Input        textinput.Model
 	hasTryDelete bool
 	Quitting     bool
 }
 
+// Todo not sure if this is needed
 type updateListMsg struct{}
 
 func (parentModel ParentModel) Init() tea.Cmd {
@@ -73,19 +72,10 @@ func (parentModel ParentModel) View() string {
 		return variables.DocStyle.Render(parentModel.List.View() + "\nCannot delete items, please go to json file and delete manually")
 	}
 
-	if parentModel.Input.Focused() {
-		return variables.DocStyle.Render(parentModel.List.View() + "\n" + parentModel.Input.View())
-	}
 	return variables.DocStyle.Render(parentModel.List.View() + "\n")
 }
 
-func InitParent(apps *structs.Environments) (tea.Model, tea.Cmd) {
-
-	input := textinput.New()
-	input.Prompt = "$ "
-	input.Placeholder = "Project name"
-	input.CharLimit = 250
-	input.Width = 50
+func InitParent(apps *structures.Applications) (tea.Model, tea.Cmd) {
 
 	var items = make([]list.Item, len(*apps))
 	for i, proj := range *apps {
@@ -95,7 +85,6 @@ func InitParent(apps *structs.Environments) (tea.Model, tea.Cmd) {
 	var parentModel = ParentModel{
 		Mode:     variables.Nav,
 		List:     list.New(items, list.NewDefaultDelegate(), 8, 8),
-		Input:    input,
 		Quitting: false,
 	}
 

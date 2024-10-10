@@ -1,18 +1,18 @@
 package tui
 
 import (
-	bubbleteaModel "test-cet-wp-plugin/internal/model/bubbletea"
-	"test-cet-wp-plugin/internal/model/structs"
+	structures "test-cet-wp-plugin/internal/model/structs"
+	models "test-cet-wp-plugin/internal/tui/models"
 	"test-cet-wp-plugin/internal/tui/variables"
 	"test-cet-wp-plugin/internal/utilities"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func StartTea(Environments *structs.Environments) {
-	variables.EnvironmentsRef = Environments
+func StartTea(apps *structures.Applications) {
+	variables.ApplicationsLists = apps
 
-	model, _ := bubbleteaModel.InitParent(variables.EnvironmentsRef)
+	model, _ := models.InitParent(apps)
 
 	ParentProgram := tea.NewProgram(model, tea.WithAltScreen())
 

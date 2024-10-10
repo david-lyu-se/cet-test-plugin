@@ -14,10 +14,10 @@ func main() {
 
 	if file != nil {
 		defer file.Close()
-		environments := operations.ReadFile(file)
+		apps := operations.ReadFile(file)
 
 		log.Println("Environments okay starting tui...")
-		tui.StartTea(environments)
+		tui.StartTea(apps)
 
 	}
 }

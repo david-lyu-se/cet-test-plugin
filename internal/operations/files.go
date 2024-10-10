@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"test-cet-wp-plugin/internal/model/structs"
+	structures "test-cet-wp-plugin/internal/model/structs"
 	"test-cet-wp-plugin/internal/utilities"
 )
 
@@ -35,20 +35,20 @@ func CloseFile(file *os.File) {
 	}
 }
 
-func ReadFile(file *os.File) *structs.Environments {
-	var environments structs.Environments
+func ReadFile(file *os.File) *structures.Applications {
+	var apps structures.Applications
 	byte, err := io.ReadAll(file)
 	if err != nil {
 		utilities.HandleFatalError(err, true, "Could not convert file to bytes")
 	}
 
-	err = json.Unmarshal(byte, &environments)
+	err = json.Unmarshal(byte, &apps)
 
 	if err != nil {
 		utilities.HandleFatalError(err, true, "Could not parse file")
 	}
 
-	return &environments
+	return &apps
 }
 
 func WriteFile(file *os.File) {
