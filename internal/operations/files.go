@@ -72,15 +72,10 @@ func WriteFile(file *os.File, conf *structures.ConfFile) {
 		}
 
 		log.Println(string(bytes))
-		_, err = file.WriteAt(bytes, 0)
+		_, err = file.WriteAt(bytes, io.SeekStart)
 		if err != nil {
 			utilities.HandleFatalError(err, true, "")
 		}
-
-		// _, err = file.Write(bytes)
-		// if err != nil {
-		// 	utilities.HandleFatalError(err, true, "")
-		// }
 	}
 
 	//file pointer reset

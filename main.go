@@ -20,6 +20,7 @@ func main() {
 
 		tui.StartTea(confFile)
 
+		//Test write file
 		// var (
 		// 	app  structures.Application = structures.Application{Name: "test", Path: "/", PluginPath: "plugins"}
 		// 	apps structures.Applications
@@ -28,19 +29,10 @@ func main() {
 
 		// apps = append(apps, app)
 		// conf = structures.ConfFile{
-		// 	Apps:       &apps,
+		// 	Apps:       apps,
 		// 	PluginDir:  "/",
 		// 	WorkingDir: "/",
 		// }
-		// var test = operations.ReadFile(file)
-		// bytes, err := json.Marshal(confFile)
-		// if err != nil {
-		// 	utilities.HandleFatalError(err, true, "Convert to bytes")
-		// 	return
-		// }
-
-		// log.Println(string(bytes))
-
 		// operations.WriteFile(file, &conf)
 	}
 }
