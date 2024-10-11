@@ -11,15 +11,37 @@ import (
 func main() {
 	log.Println("Checking if config file exists in User's Profile.")
 	file := initConfigFile()
-	file.Sync()
 
 	if file != nil {
 		defer file.Close()
 		confFile := operations.ReadFile(file)
 
 		log.Println("Environments okay starting tui...")
+
 		tui.StartTea(confFile)
 
+		// var (
+		// 	app  structures.Application = structures.Application{Name: "test", Path: "/", PluginPath: "plugins"}
+		// 	apps structures.Applications
+		// 	conf structures.ConfFile
+		// )
+
+		// apps = append(apps, app)
+		// conf = structures.ConfFile{
+		// 	Apps:       &apps,
+		// 	PluginDir:  "/",
+		// 	WorkingDir: "/",
+		// }
+		// var test = operations.ReadFile(file)
+		// bytes, err := json.Marshal(confFile)
+		// if err != nil {
+		// 	utilities.HandleFatalError(err, true, "Convert to bytes")
+		// 	return
+		// }
+
+		// log.Println(string(bytes))
+
+		// operations.WriteFile(file, &conf)
 	}
 }
 
@@ -43,7 +65,7 @@ func initConfigFile() *os.File {
 		//check if file exists
 		file = operations.CreateFile(configRootPath+configDir, configFileName)
 	} else {
-		file, err = os.Open(configRootPath + configDir + configFileName)
+		file, err = os.OpenFile(configRootPath+configDir+configFileName, os.O_RDWR, os.ModeAppend)
 		if err != nil {
 			utilities.HandleFatalError(err, true, "File exists but could not open")
 		}

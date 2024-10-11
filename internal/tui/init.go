@@ -12,7 +12,13 @@ import (
 func StartTea(conf *structures.ConfFile) {
 	variables.Conf = conf
 
-	model, _ := models.InitParent(conf.Apps)
+	// //Test
+	// app := structures.Application{Name: "Test", Path: "/", PluginPath: "/"}
+	// conf.Apps = append(conf.Apps, app)
+	// app = structures.Application{Name: "Test1", Path: "/", PluginPath: "/"}
+	// conf.Apps = append(conf.Apps, app)
+
+	model, _ := models.InitParent(&conf.Apps)
 
 	variables.ParentProgram = tea.NewProgram(model, tea.WithAltScreen())
 

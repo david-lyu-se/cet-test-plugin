@@ -118,7 +118,7 @@ func InitAppModel(p *ParentModel) (tea.Model, tea.Cmd) {
 
 	fp.AllowedTypes = []string{".mod", ".sum", ".go", ".txt", ".md", ".sh"}
 
-	if variables.Conf.WorkingDir != "" {
+	if variables.Conf.WorkingDir == "" {
 		fp.CurrentDirectory, _ = os.UserHomeDir()
 	} else {
 		fp.CurrentDirectory = variables.Conf.WorkingDir

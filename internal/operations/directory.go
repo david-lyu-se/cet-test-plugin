@@ -32,7 +32,7 @@ func CreateDirectory(dirPath string, fileName string, isParentDir bool) bool {
 
 	if isParentDir && isDirectoryCreated {
 		//create file
-		CreateFile(dirPath, fileName)
+		CloseFile(CreateFile(dirPath, fileName))
 	}
 
 	return isFileCreated

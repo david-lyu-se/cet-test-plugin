@@ -15,7 +15,7 @@ func (e Application) FilterValue() string {
 }
 
 type ConfFile struct {
-	Apps       *Applications
+	Apps       Applications
 	WorkingDir string
 	PluginDir  string
 }

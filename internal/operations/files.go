@@ -3,6 +3,7 @@ package operations
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"os"
 	structures "test-cet-wp-plugin/internal/model/structs"
 	"test-cet-wp-plugin/internal/utilities"
@@ -13,17 +14,18 @@ func CreateFile(dirPath string, fileName string) *os.File {
 		fileName = "environments.json"
 	}
 
-	if file, err := os.Open(dirPath + fileName); err != nil {
+	if file, err := os.OpenFile(dirPath+fileName, os.O_RDWR, os.ModeType); err != nil {
 		// If file does not exists, create file
 		if newFile, err := os.Create(dirPath + fileName); err != nil {
 			utilities.HandleFatalError(err, true, "File "+dirPath+fileName+" not created")
 		} else {
-			newFile.WriteString("{ \"Apps\": [],\"WorkingDir\":\"\",\"PluginDir\":\"\" }")
+			// newFile.WriteString("{ \"Apps\": [],\"WorkingDir\":\"\",\"PluginDir\":\"\" }")
 
-			//file pointer reset
-			if _, err := newFile.Seek(0, io.SeekStart); err != nil {
-				utilities.HandleFatalError(err, true, "Unable to reset file pointer")
-			}
+			// //file pointer reset
+			// if _, err := newFile.Seek(0, io.SeekStart); err != nil {
+			// 	utilities.HandleFatalError(err, true, "Unable to reset file pointer")
+			// }
+			WriteFile(newFile, nil)
 
 			return newFile
 		}
@@ -47,16 +49,42 @@ func ReadFile(file *os.File) *structures.ConfFile {
 	if err != nil {
 		utilities.HandleFatalError(err, true, "Could not convert file to bytes")
 	}
-
 	err = json.Unmarshal(byte, &confFile)
 
 	if err != nil {
-		utilities.HandleFatalError(err, true, "Could not parse json")
+		utilities.HandleFatalError(err, true, "")
 	}
 
 	return &confFile
 }
 
-func WriteFile(file *os.File) {
+func WriteFile(file *os.File, conf *structures.ConfFile) {
+	var bytes []byte
+	var err error
+	if conf == nil {
+		file.WriteString("{ \"Apps\": [],\"WorkingDir\":\"\",\"PluginDir\":\"\" }")
+	} else {
+		log.Println("inside write file")
+		bytes, err = json.Marshal(conf)
+		if err != nil {
+			utilities.HandleFatalError(err, true, "Convert to bytes")
+			return
+		}
 
+		log.Println(string(bytes))
+		_, err = file.WriteAt(bytes, 0)
+		if err != nil {
+			utilities.HandleFatalError(err, true, "")
+		}
+
+		// _, err = file.Write(bytes)
+		// if err != nil {
+		// 	utilities.HandleFatalError(err, true, "")
+		// }
+	}
+
+	//file pointer reset
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		utilities.HandleFatalError(err, true, "Unable to reset file pointe")
+	}
 }
