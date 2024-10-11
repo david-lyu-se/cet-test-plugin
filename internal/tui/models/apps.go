@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"errors"
 	"os"
 	"strings"
@@ -28,6 +27,10 @@ type updateMsg struct{}
 
 type clearErrorMsg struct{}
 
+type initMsg struct {
+	msg string
+}
+
 // Move to variables or varialbes/functions
 func clearErrorAfter(t time.Duration) tea.Cmd {
 	return tea.Tick(t, func(_ time.Time) tea.Msg {
@@ -36,7 +39,11 @@ func clearErrorAfter(t time.Duration) tea.Cmd {
 }
 
 func (a AppModel) Init() tea.Cmd {
-	return a.File.Init()
+	cmd := a.File.Init()
+	msg := cmd()
+	a.msgs = append(a.msgs, msg)
+
+	return cmd
 }
 
 func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -64,8 +71,11 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case clearErrorMsg:
 		a.err = nil
-	default:
 		cmd = func() tea.Msg { return tea.WindowSizeMsg{} }
+		return a, cmd
+	case initMsg:
+		cmd = a.File.Init()
+		return a, cmd
 	}
 
 	// var cmd tea.Cmd
@@ -87,13 +97,6 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return a, cmd
-
-	//
-	// double check
-	//
-	// cmds = append(cmds, cmd)
-	// return a, cmd
-	// ask for file path of environment
 }
 
 func (a AppModel) View() string {
@@ -102,7 +105,6 @@ func (a AppModel) View() string {
 	}
 	var s strings.Builder
 	s.WriteString(a.File.CurrentDirectory)
-	s.WriteString("\n ")
 	if a.err != nil {
 		s.WriteString(a.File.Styles.DisabledFile.Render(a.err.Error()))
 	} else if a.SelectedFile == "" {
@@ -110,10 +112,7 @@ func (a AppModel) View() string {
 	} else {
 		s.WriteString("Selected file: " + a.File.Styles.Selected.Render(a.SelectedFile))
 	}
-	// s.WriteString("\n\n" + a.File.View() + "\n")
-	//
-	msg, _ := json.Marshal(a.msgs)
-	s.Write(msg)
+	s.WriteString("\n\n" + a.File.View() + "\n")
 
 	return s.String()
 }
@@ -123,8 +122,8 @@ func InitAppModel(p *ParentModel) (tea.Model, tea.Cmd) {
 
 	fp.AllowedTypes = []string{".mod", ".sum", ".go", ".txt", ".md", ".sh"}
 	fp.CurrentDirectory, _ = os.UserHomeDir()
-	fp.Path = fp.CurrentDirectory + "/Desktop"
-	fp.DirAllowed = true
+	// fp.Path = fp.CurrentDirectory + "/Desktop"
+	// fp.DirAllowed = true
 
 	var appModel = AppModel{
 		File:        fp,
@@ -132,5 +131,9 @@ func InitAppModel(p *ParentModel) (tea.Model, tea.Cmd) {
 		parentModel: p,
 	}
 
-	return appModel, func() tea.Msg { return tea.WindowSizeMsg{} }
+	return appModel, func() tea.Msg {
+		return initMsg{
+			msg: "Initializing",
+		}
+	}
 }
