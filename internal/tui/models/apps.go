@@ -4,9 +4,11 @@ import (
 	"errors"
 	"os"
 	"strings"
+	"test-cet-wp-plugin/internal/tui/variables"
 	"time"
 
 	"github.com/charmbracelet/bubbles/filepicker"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -16,11 +18,10 @@ type AppModel struct {
 	quitting     bool
 	err          error
 	/* Name of App */
-	// input   textinput.Model
 	appName string
+	input   textinput.Model
 	/* Parent Model */
 	parentModel *ParentModel
-	msgs        []tea.Msg
 }
 
 type updateMsg struct{}
@@ -39,16 +40,12 @@ func clearErrorAfter(t time.Duration) tea.Cmd {
 }
 
 func (a AppModel) Init() tea.Cmd {
-	cmd := a.File.Init()
-	msg := cmd()
-	a.msgs = append(a.msgs, msg)
-
-	return cmd
+	return nil
+	// return a.File.Init()
 }
 
 func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// ask user for name of app/environment
-	a.msgs = append(a.msgs, msg)
 	var cmd tea.Cmd
 	// var cmds []tea.Cmd
 	switch msg := msg.(type) {
@@ -71,8 +68,6 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case clearErrorMsg:
 		a.err = nil
-		cmd = func() tea.Msg { return tea.WindowSizeMsg{} }
-		return a, cmd
 	case initMsg:
 		cmd = a.File.Init()
 		return a, cmd
@@ -105,6 +100,7 @@ func (a AppModel) View() string {
 	}
 	var s strings.Builder
 	s.WriteString(a.File.CurrentDirectory)
+	s.WriteString("\n")
 	if a.err != nil {
 		s.WriteString(a.File.Styles.DisabledFile.Render(a.err.Error()))
 	} else if a.SelectedFile == "" {
@@ -121,9 +117,12 @@ func InitAppModel(p *ParentModel) (tea.Model, tea.Cmd) {
 	fp := filepicker.New()
 
 	fp.AllowedTypes = []string{".mod", ".sum", ".go", ".txt", ".md", ".sh"}
-	fp.CurrentDirectory, _ = os.UserHomeDir()
-	// fp.Path = fp.CurrentDirectory + "/Desktop"
-	// fp.DirAllowed = true
+
+	if variables.Conf.WorkingDir != "" {
+		fp.CurrentDirectory, _ = os.UserHomeDir()
+	} else {
+		fp.CurrentDirectory = variables.Conf.WorkingDir
+	}
 
 	var appModel = AppModel{
 		File:        fp,

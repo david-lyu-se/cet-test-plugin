@@ -51,8 +51,6 @@ func (parentModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			parentModel.hasTryDelete = true
 		} else if key.Matches(msg, variables.Keymap.Quit) {
 			parentModel.Quitting = true
-			//Work around for graceful termination...
-			// variables.ParentProgram.ReleaseTerminal()
 			cmd = tea.Quit
 		} else {
 			parentModel.List, cmd = parentModel.List.Update(msg)
@@ -75,7 +73,7 @@ func (parentModel ParentModel) View() string {
 
 	if parentModel.hasTryDelete {
 		parentModel.hasTryDelete = false
-		return variables.DocStyle.Render("\nCannot delete items, please go to json file and delete manually" + parentModel.List.View())
+		return variables.DocStyle.Render("\nCannot delete items, please go to json file and delete manually\n" + parentModel.List.View())
 	}
 
 	return variables.DocStyle.Render(parentModel.List.View() + "\n")
