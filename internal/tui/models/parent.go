@@ -42,24 +42,25 @@ func (parentModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if key.Matches(msg, variables.Keymap.Enter) {
 			//go to plugins model init
 		} else if key.Matches(msg, variables.Keymap.Create) {
-			var teaModel, _ = InitAppModel(&parentModel)
-			var err error
-			variables.AppProgram = tea.NewProgram(teaModel, tea.WithAltScreen())
-			teaModel, err = variables.AppProgram.Run()
+			variables.AppModel, cmd = InitAppModel(&parentModel)
+			teaModel, err := tea.NewProgram(variables.AppModel, tea.WithAltScreen()).Run()
+
 			// var appModel = teaModel.(AppModel)
 			// fmt.Println("\n  You selected: " + appModel.File.Styles.Selected.Render(appModel.SelectedFile) + "\n")
+
 			if err != nil {
 				parentModel.err = err
 				return parentModel, nil
 			}
 			// println(returnModel.selectedFFile)
-			return parentModel, nil
+			return teaModel, nil
 			// mm := teaModel.(AppModel)
 		} else if key.Matches(msg, variables.Keymap.Delete) {
 			//delete environment tell them to do it manually
 			parentModel.hasTryDelete = true
 		} else if key.Matches(msg, variables.Keymap.Quit) {
 			parentModel.Quitting = true
+			variables.ParentProgram.ReleaseTerminal()
 			cmd = tea.Quit
 		} else {
 			parentModel.List, cmd = parentModel.List.Update(msg)
@@ -77,7 +78,7 @@ func (parentModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (parentModel ParentModel) View() string {
 	if parentModel.Quitting {
-		return "Bye"
+		return ""
 	}
 
 	if parentModel.hasTryDelete {

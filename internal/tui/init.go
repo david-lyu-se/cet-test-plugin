@@ -14,9 +14,9 @@ func StartTea(conf *structures.ConfFile) {
 
 	model, _ := models.InitParent(conf.Apps)
 
-	ParentProgram := tea.NewProgram(model, tea.WithAltScreen())
+	variables.ParentProgram = tea.NewProgram(model, tea.WithAltScreen())
 
-	if _, err := ParentProgram.Run(); err != nil {
+	if _, err := variables.ParentProgram.Run(); err != nil {
 		utilities.HandleFatalError(err, true, "Error running bubble tea")
 	}
 }

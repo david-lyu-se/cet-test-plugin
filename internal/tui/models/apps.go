@@ -59,7 +59,7 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (a AppModel) View() string {
 	if a.quiting {
-		return "bye"
+		return ""
 	}
 	var s strings.Builder
 	s.WriteString("\n ")
