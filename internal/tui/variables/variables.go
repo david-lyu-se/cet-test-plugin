@@ -19,4 +19,5 @@ var (
 	// ApplicationsLists *structures.Applications
 	Conf       *structures.ConfFile
 	WindowSize tea.WindowSizeMsg
+	AppProgram *tea.Program
 )

@@ -13,6 +13,7 @@ type ParentModel struct {
 	Mode         variables.Mode
 	List         list.Model
 	hasTryDelete bool
+	err          error
 	Quitting     bool
 }
 
@@ -41,7 +42,19 @@ func (parentModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if key.Matches(msg, variables.Keymap.Enter) {
 			//go to plugins model init
 		} else if key.Matches(msg, variables.Keymap.Create) {
-			//go to environment model init
+			var teaModel, _ = InitAppModel(&parentModel)
+			var err error
+			variables.AppProgram = tea.NewProgram(teaModel, tea.WithAltScreen())
+			teaModel, err = variables.AppProgram.Run()
+			// var appModel = teaModel.(AppModel)
+			// fmt.Println("\n  You selected: " + appModel.File.Styles.Selected.Render(appModel.SelectedFile) + "\n")
+			if err != nil {
+				parentModel.err = err
+				return parentModel, nil
+			}
+			// println(returnModel.selectedFFile)
+			return parentModel, nil
+			// mm := teaModel.(AppModel)
 		} else if key.Matches(msg, variables.Keymap.Delete) {
 			//delete environment tell them to do it manually
 			parentModel.hasTryDelete = true
@@ -69,7 +82,7 @@ func (parentModel ParentModel) View() string {
 
 	if parentModel.hasTryDelete {
 		parentModel.hasTryDelete = false
-		return variables.DocStyle.Render(parentModel.List.View() + "\nCannot delete items, please go to json file and delete manually")
+		return variables.DocStyle.Render("\nCannot delete items, please go to json file and delete manually" + parentModel.List.View())
 	}
 
 	return variables.DocStyle.Render(parentModel.List.View() + "\n")
