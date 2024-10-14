@@ -9,7 +9,15 @@ type Application struct {
 	PluginPath string
 }
 
-// Needed to add Application to as a Tea List Item
+// Needed to get Tea List Item to show
+
+/* Title to display into Tea List Item */
+func (a Application) Title() string { return "Appication: " + a.Name }
+
+/* Description to display into Tea List Item */
+func (a Application) Description() string { return "Path: " + a.Path }
+
+/* How Tea List Item gets fileterd */
 func (e Application) FilterValue() string {
 	return e.Name
 }

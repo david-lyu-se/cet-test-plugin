@@ -4,7 +4,7 @@ import "github.com/charmbracelet/lipgloss"
 
 /* Styling */
 
-var DocStyle = lipgloss.NewStyle().Margin(0, 2)
+var DocStyle = lipgloss.NewStyle().Padding(0, 2)
 
 var HelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render
 
