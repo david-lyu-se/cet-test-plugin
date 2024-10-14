@@ -22,6 +22,8 @@ type AppModel struct {
 	input   textinput.Model
 	/* Parent Model */
 	parentModel *ParentModel
+	//Test
+	cmd tea.Cmd
 }
 
 type updateMsg struct{}
@@ -41,13 +43,12 @@ func clearErrorAfter(t time.Duration) tea.Cmd {
 
 func (a AppModel) Init() tea.Cmd {
 	return nil
-	// return a.File.Init()
 }
 
 func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// ask user for name of app/environment
 	var cmd tea.Cmd
-	// var cmds []tea.Cmd
+	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		// if a.input.Focused() {
@@ -69,8 +70,9 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case clearErrorMsg:
 		a.err = nil
 	case initMsg:
-		cmd = a.File.Init()
-		return a, cmd
+		cmds = append(cmds, a.File.Init())
+		cmds = append(cmds, func() tea.Msg { return tea.WindowSizeMsg{Width: 100, Height: 24} })
+		return a, tea.Batch(cmds...)
 	}
 
 	// var cmd tea.Cmd
@@ -116,13 +118,16 @@ func (a AppModel) View() string {
 func InitAppModel(p *ParentModel) (tea.Model, tea.Cmd) {
 	fp := filepicker.New()
 
-	fp.AllowedTypes = []string{".mod", ".sum", ".go", ".txt", ".md", ".sh"}
+	fp.AllowedTypes = []string{".txt", ".md", ".sh", ".json"}
 
 	if variables.Conf.WorkingDir == "" {
 		fp.CurrentDirectory, _ = os.UserHomeDir()
 	} else {
 		fp.CurrentDirectory = variables.Conf.WorkingDir
 	}
+
+	fp.ShowHidden = true
+	fp.AutoHeight = true
 
 	var appModel = AppModel{
 		File:        fp,

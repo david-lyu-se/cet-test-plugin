@@ -19,7 +19,6 @@ func StartTea(conf *structures.ConfFile) {
 	// conf.Apps = append(conf.Apps, app)
 
 	model, _ := models.InitParent(&conf.Apps)
-	// model := models.Init(&conf.Apps)
 
 	variables.ParentProgram = tea.NewProgram(model, tea.WithAltScreen())
 
