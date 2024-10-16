@@ -5,6 +5,7 @@ import (
 	"os"
 	"test-cet-wp-plugin/internal/operations"
 	"test-cet-wp-plugin/internal/tui"
+	"test-cet-wp-plugin/internal/tui/variables"
 	"test-cet-wp-plugin/internal/utilities"
 )
 
@@ -14,6 +15,7 @@ func main() {
 
 	if file != nil {
 		defer file.Close()
+		variables.File = file
 		confFile := operations.ReadFile(file)
 
 		log.Println("Environments okay starting tui...")

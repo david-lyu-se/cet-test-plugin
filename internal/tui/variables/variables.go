@@ -1,6 +1,7 @@
 package variables
 
 import (
+	"os"
 	structures "test-cet-wp-plugin/internal/model/structs"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -18,4 +19,5 @@ var (
 	ParentProgram *tea.Program
 	Conf          *structures.ConfFile
 	WindowSize    tea.WindowSizeMsg
+	File          *os.File
 )

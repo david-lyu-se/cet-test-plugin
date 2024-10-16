@@ -38,6 +38,7 @@ func (parentModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// custom msg for updating Item List after creatihng new Environment
 	case UpdateListMsg:
 		// tea.msg for keypress
+
 		parentModel.List, cmd = parentModel.List.Update(msg)
 	case tea.KeyMsg:
 		//clears out error after key press
