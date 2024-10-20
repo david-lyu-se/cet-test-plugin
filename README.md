@@ -34,8 +34,11 @@
  - Input name
  - Edit/Delete ? (Tell user to edit in .json file)
 3) Application Selected
- - Check if Mono repo exists if not send back to parent with Monorepo choice
- - FilePicker (Not sure what file to use composer.json should be good)
+ - Go to 2nd Level Menu
+**2nd Level Menu**
+- Update Plugins Dir
+- Select Plugin
+  - FilePicker (Not sure what file to use composer.json should be good)
   - Looking for vendor
     - No vendor composer install
   - Options:

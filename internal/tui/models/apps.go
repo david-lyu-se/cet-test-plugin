@@ -78,13 +78,10 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						}
 					}
 				}
-				// cmd = variables.TextInputs(msg, &a.input)
-				// cmd = func()tea.Msg {return }
 			case key.Matches(msg, variables.Keymap.Back):
 				a.isFocus = false
 				a.AppName = ""
 
-				// default:
 			}
 			a.input, cmd = a.input.Update(msg)
 			return a, cmd
@@ -160,6 +157,15 @@ func (a AppModel) View() string {
 }
 
 func InitAppModel(p *ParentModel) (tea.Model, tea.Cmd) {
+
+	if variables.AppModel != nil {
+		return *variables.AppModel, func() tea.Msg {
+			return initMsg{
+				msg: "Initializing",
+			}
+		}
+	}
+
 	fp := filepicker.New()
 
 	fp.AllowedTypes = []string{".txt", ".md", ".sh", ".json"}
@@ -190,27 +196,4 @@ func InitAppModel(p *ParentModel) (tea.Model, tea.Cmd) {
 			msg: "Initializing",
 		}
 	}
-}
-
-func addApplication(appName string, appDirectory string, apps structures.Applications) {
-	app := structures.Application{
-		Name: appName,
-		Path: getAppDirectory(appDirectory),
-	}
-	newApps := append(apps, app)
-	variables.Conf.Apps = newApps
-
-	operations.WriteFile(variables.File, variables.Conf)
-}
-
-func getAppDirectory(filePath string) string {
-	dirPath := ""
-	if filePath != "" {
-		var index = strings.LastIndex(filePath, "/")
-		if index > -1 {
-			dirPath = filePath[index : len(filePath)-1]
-		}
-	}
-
-	return dirPath
 }
