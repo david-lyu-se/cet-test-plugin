@@ -1,8 +1,6 @@
 package parentModel
 
 import (
-	"fmt"
-	"io"
 	"strings"
 	applicationModel "test-cet-wp-plugin/internal/tui/models/apps"
 	"test-cet-wp-plugin/internal/tui/variables"
@@ -15,7 +13,9 @@ import (
 /* Initial variables */
 type item string
 
-func (i item) FilterValue() string { return "" }
+func (i item) FilterValue() string { return string(i) }
+func (i item) Title() string       { return string(i) }
+func (i item) Description() string { return "" }
 
 const (
 	enumApp      item = "Go to Application settings"
@@ -23,29 +23,6 @@ const (
 	enumPlugin   item = "Edit Plugins Parent Directory"
 	enumFileSync item = "Execute file sync"
 )
-
-type itemDelegate struct{}
-
-func (d itemDelegate) Height() int                             { return 1 }
-func (d itemDelegate) Spacing() int                            { return 0 }
-func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
-func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
-	i, ok := listItem.(item)
-	if !ok {
-		return
-	}
-
-	str := fmt.Sprintf("%d. %s", index+1, i)
-
-	fn := variables.DocStyle.Render
-	if index == m.Index() {
-		fn = func(s ...string) string {
-			return variables.DocStyle.Render("> " + strings.Join(s, " "))
-		}
-	}
-
-	fmt.Fprint(w, fn(str))
-}
 
 /* Start of Tea Model */
 type ParentModel struct {
@@ -66,7 +43,7 @@ func InitParent() (tea.Model, tea.Cmd) {
 	}
 
 	var parentModel = ParentModel{
-		List:         list.New(items, itemDelegate{}, 20, 24),
+		List:         list.New(items, list.NewDefaultDelegate(), 20, 24),
 		hasTryDelete: false,
 		hasTryEdit:   false,
 		Quitting:     false,
@@ -107,12 +84,15 @@ func (pModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if key.Matches(msg, variables.Keymap.Enter) {
 			var item = pModel.List.SelectedItem()
 			return pModel.goToSubMenu(item)
-
-		}
-		if (key.Matches(msg, variables.Keymap.Quit)) || key.Matches(msg, variables.Keymap.Quit) {
+		} else if (key.Matches(msg, variables.Keymap.Quit)) || key.Matches(msg, variables.Keymap.Quit) {
 			pModel.Quitting = true
 			cmd = tea.Quit
+		} else {
+			// Need this for default keys to work
+			pModel.List, cmd = pModel.List.Update(msg)
 		}
+	default:
+		pModel.List, cmd = pModel.List.Update(msg)
 	}
 	return pModel, cmd
 }
