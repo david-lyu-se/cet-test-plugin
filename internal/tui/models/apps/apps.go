@@ -1,6 +1,7 @@
 package applicationModel
 
 import (
+	"errors"
 	structures "test-cet-wp-plugin/internal/model/structs"
 	"test-cet-wp-plugin/internal/tui/variables"
 
@@ -86,6 +87,10 @@ func (appModel AppModel) View() string {
 	if appModel.hasTryDelete {
 		return variables.AlertStyle("Cannot delete please go into file and delete") + "\n" + variables.DocStyle.Render(appModel.List.View())
 	}
+
+	if appModel.err != nil {
+		return variables.DocStyle.Render(appModel.err.Error())
+	}
 	return variables.DocStyle.Render(appModel.List.View()) + "\n"
 }
 
@@ -117,7 +122,17 @@ func (appModel AppModel) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		appModel.hasTryDelete = true
 	case key.Matches(msg, variables.Keymap.Enter):
 		//should not error out since we know for a fact this list item is application
-		variables.AppInfo = appModel.List.SelectedItem().(structures.Application)
+		// variables.AppInfo, _ = appModel.List.SelectedItem().(structures.Application)
+		var (
+			appRef structures.Application
+			ok     bool
+		)
+		appRef, ok = appModel.List.SelectedItem().(structures.Application)
+		if !ok {
+			appModel.err = errors.New("Could not type cast")
+			return appModel, func() tea.Msg { return appModel.err }
+		}
+		variables.AppInfo = &appRef
 		fallthrough
 	case key.Matches(msg, variables.Keymap.Quit):
 		return *variables.ParentModel, func() tea.Msg {

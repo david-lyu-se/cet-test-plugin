@@ -109,11 +109,15 @@ func (pModel ParentModel) View() string {
 	// var test, _ = json.Marshal(variables.AppInfo)
 	// s.WriteString("\n")
 	// s.Write(test)
+	if variables.AppInfo != nil {
+		s.WriteString("Application chosen:" + variables.AppInfo.Name + "\n")
+		s.WriteString("Application path:" + variables.AppInfo.Path + "\n")
+		s.WriteString("testing 12345")
+	}
+	if variables.AppInfo == nil {
+		s.WriteString(variables.DocStyle.Render(pModel.List.View()) + "\n")
 
-	s.WriteString("Application chosen:" + variables.AppInfo.Name + "\n")
-	s.WriteString("Application path:" + variables.AppInfo.Path + "\n")
-
-	s.WriteString(variables.DocStyle.Render(pModel.List.View()) + "\n")
+	}
 
 	return s.String()
 }

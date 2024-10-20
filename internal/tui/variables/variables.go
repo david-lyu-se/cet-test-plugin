@@ -25,7 +25,7 @@ var (
 	AppModel      *tea.Model
 	PluginModel   *tea.Model
 	//Application variables
-	AppInfo    structures.Application
+	AppInfo    *structures.Application
 	PluginPath string
 	//Window Variables
 	WindowSize tea.WindowSizeMsg
