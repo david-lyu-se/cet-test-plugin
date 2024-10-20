@@ -17,6 +17,8 @@ const (
 
 var (
 	ParentProgram *tea.Program
+	AppProgram    *tea.Program
+	PluginProgram *tea.Program
 	Conf          *structures.ConfFile
 	WindowSize    tea.WindowSizeMsg
 	File          *os.File

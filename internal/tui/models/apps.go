@@ -64,7 +64,19 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					a.isFocus = false
 					a.input.Blur()
 
-					return a.parentModel, func() tea.Msg { return UpdateListMsg{} }
+					var app = structures.Application{
+						Name: a.AppName,
+						Path: a.file.CurrentDirectory,
+					}
+
+					variables.Conf.Apps = append(variables.Conf.Apps, app)
+					operations.WriteFile(variables.File, variables.Conf)
+
+					return a.parentModel, func() tea.Msg {
+						return UpdateListMsg{
+							Item: app,
+						}
+					}
 				}
 				// cmd = variables.TextInputs(msg, &a.input)
 				// cmd = func()tea.Msg {return }

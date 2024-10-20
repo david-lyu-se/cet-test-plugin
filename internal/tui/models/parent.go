@@ -10,15 +10,16 @@ import (
 )
 
 type ParentModel struct {
-	// Mode         variables.Mode
 	List         list.Model
 	hasTryDelete bool
-	// err          error
-	Quitting bool
+	err          error
+	Quitting     bool
 }
 
 // Todo not sure if this is needed
-type UpdateListMsg struct{}
+type UpdateListMsg struct {
+	Item structures.Application
+}
 
 func (parentModel ParentModel) Init() tea.Cmd {
 	//future move operations file create and read here
@@ -27,7 +28,6 @@ func (parentModel ParentModel) Init() tea.Cmd {
 
 func (parentModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	// tea.msgs default or we can create
@@ -35,42 +35,19 @@ func (parentModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		variables.WindowSize = msg
 		top, right, bottom, left := variables.DocStyle.GetMargin()
 		parentModel.List.SetSize(msg.Width-left-right, msg.Height-top-bottom-1)
-	// custom msg for updating Item List after creatihng new Environment
+	// custom msg for updating Item List after creatihng new Application
 	case UpdateListMsg:
-		// tea.msg for keypress
-
-		parentModel.List, cmd = parentModel.List.Update(msg)
+		parentModel.List.InsertItem(len(variables.Conf.Apps)-1, msg.Item)
+		parentModel.List, cmd = parentModel.List.Update(variables.Conf.Apps)
+	// key inputs
 	case tea.KeyMsg:
 		//clears out error after key press
-		if !key.Matches(msg, variables.Keymap.Quit) {
-			parentModel.hasTryDelete = false
-		}
-		if key.Matches(msg, variables.Keymap.Enter) {
-			//go to plugins model init
-		} else if key.Matches(msg, variables.Keymap.Create) {
-			var appModel tea.Model
-			appModel, cmd = InitAppModel(&parentModel)
-			return appModel, cmd
-			// mm := teaModel.(AppModel)
-		} else if key.Matches(msg, variables.Keymap.Delete) {
-			//delete environment tell them to do it manually
-			parentModel.hasTryDelete = true
-		} else if key.Matches(msg, variables.Keymap.Quit) {
-			parentModel.Quitting = true
-			cmd = tea.Quit
-		} else {
-			parentModel.List, cmd = parentModel.List.Update(msg)
-		}
+		return parentModel.handleKeyInputs(msg)
 	//cant fallthrough
 	default:
 		parentModel.List, cmd = parentModel.List.Update(msg)
 	}
-
-	if cmd != nil {
-		cmds = append(cmds, cmd)
-		cmd = nil
-	}
-	return parentModel, tea.Batch(cmds...)
+	return parentModel, cmd
 }
 
 func (parentModel ParentModel) View() string {
@@ -81,8 +58,6 @@ func (parentModel ParentModel) View() string {
 	if parentModel.hasTryDelete {
 		return variables.AlertStyle("Cannot delete please go into file and delete") + "\n" + variables.DocStyle.Render(parentModel.List.View())
 	}
-
-	// return variables.DocStyle.Render(string(parentModel.List.Height()))
 
 	return variables.DocStyle.Render(parentModel.List.View()) + "\n"
 }
@@ -118,4 +93,29 @@ func InitParent(apps *structures.Applications) (tea.Model, tea.Cmd) {
 	}
 
 	return parentModel, func() tea.Msg { return tea.WindowSizeMsg{} }
+}
+
+/* Help Functions */
+func (parentModel ParentModel) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	if !key.Matches(msg, variables.Keymap.Quit) {
+		parentModel.hasTryDelete = false
+	}
+	if key.Matches(msg, variables.Keymap.Enter) {
+		//go to plugins model init
+	} else if key.Matches(msg, variables.Keymap.Create) {
+		var appModel tea.Model
+		appModel, cmd = InitAppModel(&parentModel)
+		return appModel, cmd
+		// mm := teaModel.(AppModel)
+	} else if key.Matches(msg, variables.Keymap.Delete) {
+		//delete environment tell them to do it manually
+		parentModel.hasTryDelete = true
+	} else if key.Matches(msg, variables.Keymap.Quit) {
+		parentModel.Quitting = true
+		cmd = tea.Quit
+	} else {
+		parentModel.List, cmd = parentModel.List.Update(msg)
+	}
+	return parentModel, cmd
 }

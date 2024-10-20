@@ -19,3 +19,7 @@ func TextInputs(msg tea.KeyMsg, model *textinput.Model) tea.Cmd {
 	var _, cmd = model.Update(msg)
 	return cmd
 }
+
+func FocusKeyInputs(msg tea.Msg) {
+
+}
