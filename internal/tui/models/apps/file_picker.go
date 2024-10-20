@@ -1,8 +1,7 @@
-package models
+package applicationModel
 
 import (
 	"errors"
-	"os"
 	"strings"
 	structures "test-cet-wp-plugin/internal/model/structs"
 	"test-cet-wp-plugin/internal/operations"
@@ -15,7 +14,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type AppModel struct {
+type addAppModel struct {
 	file         filepicker.Model
 	SelectedFile string
 	quitting     bool
@@ -25,7 +24,7 @@ type AppModel struct {
 	input   textinput.Model
 	isFocus bool
 	/* Parent Model */
-	parentModel *ParentModel
+	parentModel *AppModel
 	//Test
 	cmd tea.Cmd
 }
@@ -45,11 +44,11 @@ func clearErrorAfter(t time.Duration) tea.Cmd {
 	})
 }
 
-func (a AppModel) Init() tea.Cmd {
+func (addAppModel) Init() tea.Cmd {
 	return nil
 }
 
-func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (a addAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// ask user for name of app/environment
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -129,7 +128,7 @@ func (a AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return a, cmd
 }
 
-func (a AppModel) View() string {
+func (a addAppModel) View() string {
 	if a.quitting {
 		return ""
 	}
@@ -156,44 +155,44 @@ func (a AppModel) View() string {
 	return s.String()
 }
 
-func InitAppModel(p *ParentModel) (tea.Model, tea.Cmd) {
+// func InitAppModel(p *AppModel) (tea.Model, tea.Cmd) {
 
-	if variables.AppModel != nil {
-		return *variables.AppModel, func() tea.Msg {
-			return initMsg{
-				msg: "Initializing",
-			}
-		}
-	}
+// 	if variables.AppModel != nil {
+// 		return *variables.AppModel, func() tea.Msg {
+// 			return initMsg{
+// 				msg: "Initializing",
+// 			}
+// 		}
+// 	}
 
-	fp := filepicker.New()
+// 	fp := filepicker.New()
 
-	fp.AllowedTypes = []string{".txt", ".md", ".sh", ".json"}
-	if variables.Conf.WorkingDir == "" {
-		fp.CurrentDirectory, _ = os.UserHomeDir()
-	} else {
-		fp.CurrentDirectory = variables.Conf.WorkingDir
-	}
-	fp.ShowHidden = true
-	fp.AutoHeight = true
+// 	fp.AllowedTypes = []string{".txt", ".md", ".sh", ".json"}
+// 	if variables.Conf.WorkingDir == "" {
+// 		fp.CurrentDirectory, _ = os.UserHomeDir()
+// 	} else {
+// 		fp.CurrentDirectory = variables.Conf.WorkingDir
+// 	}
+// 	fp.ShowHidden = true
+// 	fp.AutoHeight = true
 
-	ti := textinput.New()
-	ti.Placeholder = "Please give app name"
-	ti.CharLimit = 50
-	ti.Width = 20
+// 	ti := textinput.New()
+// 	ti.Placeholder = "Please give app name"
+// 	ti.CharLimit = 50
+// 	ti.Width = 20
 
-	var appModel = AppModel{
-		file:        fp,
-		quitting:    false,
-		parentModel: p,
-		input:       ti,
-		AppName:     "",
-		isFocus:     false,
-	}
+// 	var appModel = AppModel{
+// 		file:        fp,
+// 		quitting:    false,
+// 		parentModel: p,
+// 		input:       ti,
+// 		AppName:     "",
+// 		isFocus:     false,
+// 	}
 
-	return appModel, func() tea.Msg {
-		return initMsg{
-			msg: "Initializing",
-		}
-	}
-}
+// 	return appModel, func() tea.Msg {
+// 		return initMsg{
+// 			msg: "Initializing",
+// 		}
+// 	}
+// }
