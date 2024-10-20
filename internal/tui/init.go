@@ -20,6 +20,7 @@ func StartTea(conf *structures.ConfFile) {
 
 	model, _ := models.InitParent()
 
+	variables.ParentModel = &model
 	variables.ParentProgram = tea.NewProgram(model, tea.WithAltScreen())
 
 	if _, err := variables.ParentProgram.Run(); err != nil {

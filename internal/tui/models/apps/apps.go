@@ -11,113 +11,123 @@ import (
 
 type AppModel struct {
 	List         list.Model
+	fileModel    *tea.Model
 	hasTryDelete bool
 	hasTryEdit   bool
 	err          error
-	Quitting     bool
 }
 
 // Todo not sure if this is needed
-type UpdateListMsg struct {
+type updateListMsg struct {
 	Item structures.Application
 }
 
-func (parentModel AppModel) Init() tea.Cmd {
-	//future move operations file create and read here
-	return nil
-}
-
-func (parentModel AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	// tea.msgs default or we can create
-	case tea.WindowSizeMsg:
-		variables.WindowSize = msg
-		top, right, bottom, left := variables.DocStyle.GetMargin()
-		parentModel.List.SetSize(msg.Width-left-right, msg.Height-top-bottom-1)
-	// custom msg for updating Item List after creatihng new Application
-	case UpdateListMsg:
-		parentModel.List.InsertItem(len(variables.Conf.Apps)-1, msg.Item)
-		parentModel.List, cmd = parentModel.List.Update(variables.Conf.Apps)
-	// key inputs
-	case tea.KeyMsg:
-		//clears out error after key press
-		return parentModel.handleKeyInputs(msg)
-	//cant fallthrough
-	default:
-		parentModel.List, cmd = parentModel.List.Update(msg)
-	}
-	return parentModel, cmd
-}
-
-func (parentModel AppModel) View() string {
-	if parentModel.Quitting {
-		return ""
-	}
-
-	if parentModel.hasTryDelete {
-		return variables.AlertStyle("Cannot delete please go into file and delete") + "\n" + variables.DocStyle.Render(parentModel.List.View())
-	}
-
-	return variables.DocStyle.Render(parentModel.List.View()) + "\n"
-}
-
 func InitAppModel(apps *structures.Applications) (tea.Model, tea.Cmd) {
+
+	if variables.AppModel != nil {
+		return *variables.AppModel, func() tea.Msg {
+			return variables.InitAppModel{}
+		}
+	}
 
 	var items = make([]list.Item, len(*apps))
 	for i, proj := range *apps {
 		items[i] = list.Item(proj)
 	}
 
-	var parentModel = AppModel{
-		// Mode:     variables.Nav,
+	var app = AppModel{
 		List:         list.New(items, list.NewDefaultDelegate(), 20, 24),
 		hasTryDelete: false,
-		Quitting:     false,
+		hasTryEdit:   false,
 	}
 
-	if variables.WindowSize.Height != 0 {
-		top, right, bottom, left := variables.DocStyle.GetMargin()
-		parentModel.List.SetSize(variables.WindowSize.Width-left-right, variables.WindowSize.Height-top-bottom)
-	}
-
-	parentModel.List.SetSize(100, 100)
-	parentModel.List.Title = "Applications List"
-	parentModel.List.AdditionalShortHelpKeys = func() []key.Binding {
+	app.List.SetSize(50, 50)
+	app.List.Title = "Applications List"
+	app.List.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			variables.Keymap.Create,
-			variables.Keymap.Rename,
-			variables.Keymap.Delete,
+			variables.Keymap.Enter,
 			variables.Keymap.Back,
 		}
 	}
 
-	return parentModel, func() tea.Msg { return tea.WindowSizeMsg{} }
+	return app, func() tea.Msg {
+		return variables.InitAppModel{}
+	}
 }
 
-/* Help Functions */
+func (appModel AppModel) Init() tea.Cmd {
+	return nil
+}
 
-func (parentModel AppModel) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (appModel AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	switch msg := msg.(type) {
+	case variables.InitAppModel:
+		appModel.List.SetSize(variables.WindowSize.Width, variables.WindowSize.Height)
+	// custom msg for updating Item List after creatihng new Application
+	case updateListMsg:
+		appModel.List.InsertItem(len(variables.Conf.Apps)-1, msg.Item)
+		appModel.List, cmd = appModel.List.Update(variables.Conf.Apps)
+		cmds = append(cmds, cmd)
+	// key inputs
+	case tea.KeyMsg:
+		return appModel.handleKeyInputs(msg)
+		//cant fallthroug
+	}
+	appModel.List, cmd = appModel.List.Update(msg)
+	cmds = append(cmds, cmd)
+	return appModel, tea.Batch(cmds...)
+}
+
+func (appModel AppModel) View() string {
+	if appModel.hasTryDelete {
+		return variables.AlertStyle("Cannot delete please go into file and delete") + "\n" + variables.DocStyle.Render(appModel.List.View())
+	}
+	return variables.DocStyle.Render(appModel.List.View()) + "\n"
+}
+
+/**** ---------------- ****/
+/**** Helper Functions ****/
+
+func (appModel AppModel) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	if !key.Matches(msg, variables.Keymap.Quit) {
-		parentModel.hasTryDelete = false
+		appModel.hasTryDelete = false
+		appModel.hasTryEdit = false
 	}
-	if key.Matches(msg, variables.Keymap.Enter) {
-		//go to plugins model init
-	} else if key.Matches(msg, variables.Keymap.Create) {
-		var appModel tea.Model
-		// appModel, cmd = InitAppModel(&parentModel)
-		return appModel, cmd
-		// mm := teaModel.(AppModel)
-	} else if key.Matches(msg, variables.Keymap.Delete) {
-		//delete environment tell them to do it manually
-		parentModel.hasTryDelete = true
-	} else if key.Matches(msg, variables.Keymap.Quit) {
-		parentModel.Quitting = true
-		cmd = tea.Quit
-	} else {
-		parentModel.List, cmd = parentModel.List.Update(msg)
+
+	//clears out no delete/edit msg in view
+	if !appModel.hasTryDelete {
+		appModel.hasTryDelete = false
 	}
-	return parentModel, cmd
+	if !appModel.hasTryEdit {
+		appModel.hasTryEdit = false
+	}
+
+	switch true {
+	case key.Matches(msg, variables.Keymap.Create):
+		var fileModel tea.Model
+		fileModel, cmd = InitFileModel(&appModel)
+		appModel.fileModel = &fileModel
+		return fileModel, cmd
+	case key.Matches(msg, variables.Keymap.Delete):
+		appModel.hasTryDelete = true
+	case key.Matches(msg, variables.Keymap.Enter):
+		//should not error out since we know for a fact this list item is application
+		variables.AppInfo = appModel.List.SelectedItem().(structures.Application)
+		fallthrough
+	case key.Matches(msg, variables.Keymap.Quit):
+		return *variables.ParentModel, func() tea.Msg {
+			return tea.WindowSizeMsg{
+				Width:  variables.WindowSize.Width,
+				Height: variables.WindowSize.Height,
+			}
+		}
+	default:
+		appModel.List, cmd = appModel.List.Update(msg)
+	}
+	return appModel, cmd
 }

@@ -54,13 +54,12 @@ func InitParent() (tea.Model, tea.Cmd) {
 		parentModel.List.SetSize(variables.WindowSize.Width-left-right, variables.WindowSize.Height-top-bottom)
 	}
 
-	parentModel.List.SetSize(100, 100)
+	parentModel.List.SetSize(50, 50)
 	parentModel.List.Title = "Start Up Menu"
 	parentModel.List.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{
 			variables.Keymap.Enter,
 			variables.Keymap.Quit,
-			variables.Keymap.Back,
 		}
 	}
 
@@ -74,27 +73,29 @@ func (pModel ParentModel) Init() tea.Cmd {
 func (pModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		// variables.WindowSize = msg
 		top, right, bottom, left := variables.DocStyle.GetMargin()
-		pModel.List.SetSize(msg.Width-left-right, msg.Height-top-bottom-1)
+		variables.WindowSize = tea.WindowSizeMsg{
+			Width:  msg.Width - left - right,
+			Height: msg.Height - top - bottom - 1,
+		}
+		pModel.List.SetSize(variables.WindowSize.Width, variables.WindowSize.Height)
 	case tea.KeyMsg:
 		if key.Matches(msg, variables.Keymap.Enter) {
 			var item = pModel.List.SelectedItem()
 			return pModel.goToSubMenu(item)
 		} else if (key.Matches(msg, variables.Keymap.Quit)) || key.Matches(msg, variables.Keymap.Quit) {
 			pModel.Quitting = true
-			cmd = tea.Quit
-		} else {
-			// Need this for default keys to work
-			pModel.List, cmd = pModel.List.Update(msg)
+			cmds = append(cmds, tea.Quit)
 		}
-	default:
-		pModel.List, cmd = pModel.List.Update(msg)
 	}
-	return pModel, cmd
+	pModel.List, cmd = pModel.List.Update(msg)
+	cmds = append(cmds, cmd)
+	return pModel, tea.Batch(cmds...)
 }
 
 func (pModel ParentModel) View() string {
@@ -105,17 +106,26 @@ func (pModel ParentModel) View() string {
 
 	var s strings.Builder
 
+	// var test, _ = json.Marshal(variables.AppInfo)
+	// s.WriteString("\n")
+	// s.Write(test)
+
+	s.WriteString("Application chosen:" + variables.AppInfo.Name + "\n")
+	s.WriteString("Application path:" + variables.AppInfo.Path + "\n")
+
 	s.WriteString(variables.DocStyle.Render(pModel.List.View()) + "\n")
 
 	return s.String()
 }
 
-/* Helper Functions */
+/**** ---------------- ****/
+/**** Helper Functions ****/
 
 func (pModel ParentModel) goToSubMenu(i list.Item) (tea.Model, tea.Cmd) {
 	switch true {
 	case enumApp == i:
 		var appModel, cmd = applicationModel.InitAppModel(&variables.Conf.Apps)
+		variables.AppModel = &appModel
 		return appModel, cmd
 	case enumRepo == i:
 		return nil, nil

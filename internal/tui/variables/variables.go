@@ -16,10 +16,21 @@ const (
 )
 
 var (
+	//os variables
+	Conf *structures.ConfFile
+	File *os.File
+	//Model variables
 	ParentProgram *tea.Program
+	ParentModel   *tea.Model
 	AppModel      *tea.Model
 	PluginModel   *tea.Model
-	Conf          *structures.ConfFile
-	WindowSize    tea.WindowSizeMsg
-	File          *os.File
+	//Application variables
+	AppInfo    structures.Application
+	PluginPath string
+	//Window Variables
+	WindowSize tea.WindowSizeMsg
 )
+
+/* Tea.Msg */
+// Used to like inner tea.WindowSizeMsg. Bug with overlap with ParentModel
+type InitAppModel struct{}
