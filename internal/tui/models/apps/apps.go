@@ -70,9 +70,10 @@ func (appModel AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		appModel.List.SetSize(variables.WindowSize.Width, variables.WindowSize.Height)
 	// custom msg for updating Item List after creatihng new Application
 	case updateListMsg:
-		appModel.List.InsertItem(len(variables.Conf.Apps)-1, msg.Item)
+		cmds = append(cmds, appModel.List.InsertItem(len(variables.Conf.Apps)-1, msg.Item))
 		appModel.List, cmd = appModel.List.Update(variables.Conf.Apps)
 		cmds = append(cmds, cmd)
+		return appModel, tea.Batch(cmds...)
 	// key inputs
 	case tea.KeyMsg:
 		return appModel.handleKeyInputs(msg)
@@ -145,4 +146,9 @@ func (appModel AppModel) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		appModel.List, cmd = appModel.List.Update(msg)
 	}
 	return appModel, cmd
+}
+
+func returnModel(model tea.Model, cmds []tea.Cmd) (tea.Model, tea.Cmd) {
+	variables.AppModel = &model
+	return model, tea.Batch(cmds...)
 }

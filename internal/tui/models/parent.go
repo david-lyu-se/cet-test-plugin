@@ -106,9 +106,7 @@ func (pModel ParentModel) View() string {
 
 	var s strings.Builder
 
-	// var test, _ = json.Marshal(variables.AppInfo)
-	// s.WriteString("\n")
-	// s.Write(test)
+	// Change to not ref
 	if variables.AppInfo != nil {
 		s.WriteString("Application chosen:" + variables.AppInfo.Name + "\n")
 		s.WriteString("Application path:" + variables.AppInfo.Path + "\n")
