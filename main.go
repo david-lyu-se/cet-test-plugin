@@ -22,24 +22,6 @@ func main() {
 
 		tui.StartTea(confFile)
 
-		//Test write file
-		// log.Println(confFile)
-		// var (
-		// 	app  structures.Application  = structures.Application{Name: "test", Path: "/", PluginPath: "plugins"}
-		// 	apps structures.Applications = confFile.Apps
-		// 	conf structures.ConfFile     = *confFile
-		// )
-
-		// apps = append(apps, app)
-		// // apps = append(apps, app)
-		// // apps = append(apps, app)
-
-		// conf = structures.ConfFile{
-		// 	Apps:       apps,
-		// 	PluginDir:  "/",
-		// 	WorkingDir: "/",
-		// }
-		// operations.WriteFile(file, &conf)
 	}
 }
 
