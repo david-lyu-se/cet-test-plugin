@@ -2,7 +2,7 @@ package parentModel
 
 import (
 	"strings"
-	apps "test-cet-wp-plugin/internal/tui/models/appsV2"
+	applicationModel "test-cet-wp-plugin/internal/tui/models/apps"
 	"test-cet-wp-plugin/internal/tui/variables"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -77,6 +77,7 @@ func (pModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		// variables.WindowSize = msg
 		top, right, bottom, left := variables.DocStyle.GetMargin()
 		variables.WindowSize = tea.WindowSizeMsg{
 			Width:  msg.Width - left - right,
@@ -90,13 +91,6 @@ func (pModel ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		} else if (key.Matches(msg, variables.Keymap.Quit)) || key.Matches(msg, variables.Keymap.Quit) {
 			pModel.Quitting = true
 			cmds = append(cmds, tea.Quit)
-		}
-	default:
-		msg = func() tea.Msg {
-			return tea.WindowSizeMsg{
-				Width:  variables.WindowSize.Width,
-				Height: variables.WindowSize.Height,
-			}
 		}
 	}
 	pModel.List, cmd = pModel.List.Update(msg)
@@ -132,10 +126,9 @@ func (pModel ParentModel) View() string {
 func (pModel ParentModel) goToSubMenu(i list.Item) (tea.Model, tea.Cmd) {
 	switch true {
 	case enumApp == i:
-		// var appModel, cmd = applicationModel.InitAppModel(&variables.Conf.Apps)
-		// variables.AppModel = &appModel
-		// return appModel, cmd
-		return apps.InitApps(), nil
+		var appModel, cmd = applicationModel.InitAppModel(&variables.Conf.Apps)
+		variables.AppModel = &appModel
+		return appModel, cmd
 	case enumRepo == i:
 		return nil, nil
 	case enumPlugin == i:
