@@ -52,3 +52,13 @@
       - npm run build
       - rysnc
   - rsync to <application>/plugin
+
+## V2
+- Models used
+  - Views: Possible change views per choice (Check it out)
+  - Results: since we retrieve the results of application
+  - File Picker
+  - TextInput
+  - tui daemon combo
+- Main model views() ?
+- Results
