@@ -2,7 +2,7 @@ package parentModel
 
 import (
 	"strings"
-	apps "test-cet-wp-plugin/internal/tui/models/appsV2"
+	// apps "test-cet-wp-plugin/internal/tui/models/appsV2"
 	"test-cet-wp-plugin/internal/tui/variables"
 
 	"github.com/charmbracelet/bubbles/key"

@@ -5,10 +5,12 @@ import "github.com/charmbracelet/bubbles/key"
 type keymap struct {
 	Create key.Binding
 	Enter  key.Binding
-	Rename key.Binding
+	Edit   key.Binding
 	Delete key.Binding
 	Back   key.Binding
 	Quit   key.Binding
+	Down   key.Binding
+	Up     key.Binding
 }
 
 // Keymap reusable key mappings shared across models
@@ -21,9 +23,9 @@ var Keymap = keymap{
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "select"),
 	),
-	Rename: key.NewBinding(
-		key.WithKeys("r"),
-		key.WithHelp("r", "rename"),
+	Edit: key.NewBinding(
+		key.WithKeys("e"),
+		key.WithHelp("e", "edit"),
 	),
 	Delete: key.NewBinding(
 		key.WithKeys("d"),
@@ -36,5 +38,13 @@ var Keymap = keymap{
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c", "q"),
 		key.WithHelp("ctrl+c/q", "quit"),
+	),
+	Down: key.NewBinding(
+		key.WithKeys("down", "j"),
+		key.WithHelp("j", "down"),
+	),
+	Up: key.NewBinding(
+		key.WithKeys("up", "k"),
+		key.WithHelp("k", "up"),
 	),
 }

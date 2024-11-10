@@ -2,7 +2,7 @@ package tui
 
 import (
 	structures "test-cet-wp-plugin/internal/model/structs"
-	models "test-cet-wp-plugin/internal/tui/models"
+	"test-cet-wp-plugin/internal/tui/menu"
 	"test-cet-wp-plugin/internal/tui/variables"
 	"test-cet-wp-plugin/internal/utilities"
 
@@ -18,8 +18,8 @@ func StartTea(conf *structures.ConfFile) {
 	// app = structures.Application{Name: "Test1", Path: "/", PluginPath: "/"}
 	// conf.Apps = append(conf.Apps, app)
 
-	model, _ := models.InitParent()
-
+	// model, _ := models.InitParent()
+	model, _ := menu.InitMenu()
 	variables.ParentModel = &model
 	variables.ParentProgram = tea.NewProgram(model, tea.WithAltScreen())
 
