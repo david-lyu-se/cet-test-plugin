@@ -196,7 +196,7 @@ func (fm fileModel) inputFocusKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 func (fm fileModel) filePickerKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch {
 	case key.Matches(msg, variables.Keymap.Quit):
-		return fm.appModel, func() tea.Msg { return variables.InitAppModel{} }
+		return fm.appModel, func() tea.Msg { return nil }
 	}
 	return nil, nil
 }

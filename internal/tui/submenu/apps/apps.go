@@ -15,10 +15,11 @@ type updateListMsg struct {
 
 /* ----------------- Init ------------------ */
 
-func InitMenu() (tea.Model, tea.Cmd) {
+func InitMenu(parent tea.Model) (tea.Model, tea.Cmd) {
 	aModel := application{
-		Items: variables.Conf.Apps,
-		title: "Main Menu:",
+		Items:  variables.Conf.Apps,
+		title:  "Application List",
+		parent: parent,
 	}
 
 	return aModel, nil
@@ -30,6 +31,8 @@ type application struct {
 	title  string
 	cursor int
 	choice structures.Application
+	// Ref to parent menu
+	parent tea.Model
 	// non list
 	fp           *tea.Model
 	hasTryDelete bool
@@ -46,8 +49,10 @@ func (aModel application) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case updateListMsg:
+		aModel.Items = append(aModel.Items, msg.Item)
 	case tea.KeyMsg:
-		aModel.handleKeyInputs(msg)
+		return aModel.handleKeyInputs(msg)
 	}
 
 	cmds = append(cmds, cmd)
@@ -85,10 +90,6 @@ func (aModel application) View() string {
 
 func (aModel application) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	if !key.Matches(msg, variables.Keymap.Quit) {
-		aModel.hasTryDelete = false
-		aModel.hasTryEdit = false
-	}
 
 	//clears out no delete/edit msg in view
 	if !aModel.hasTryDelete {
@@ -100,19 +101,26 @@ func (aModel application) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	switch true {
 	case key.Matches(msg, variables.Keymap.Create):
-		// var fileModel tea.Model
-		// fileModel, cmd = InitFileModel(&aModel)
-		// aModel.fileModel = &fileModel
-		// return fileModel, cmd
+		var fileModel tea.Model
+		fileModel, cmd = InitFileModel(&aModel)
+		aModel.fp = &fileModel
+		return fileModel, cmd
 	case key.Matches(msg, variables.Keymap.Delete):
 		aModel.hasTryDelete = true
 	case key.Matches(msg, variables.Keymap.Edit):
 		aModel.hasTryEdit = true
+	// Goes back to primary menu with Application information
 	case key.Matches(msg, variables.Keymap.Enter):
-		// Goes back to primary menu with Application information
+		cmd = func() tea.Msg {
+			return variables.UpdateAppChosen{
+				Application: aModel.Items[aModel.cursor],
+			}
+		}
 		fallthrough
 	case key.Matches(msg, variables.Keymap.Back):
-		// Same as  Enter but no cmds passed
+		fallthrough
+	case key.Matches(msg, variables.Keymap.Quit):
+		return aModel.parent, cmd
 	case key.Matches(msg, variables.Keymap.Down):
 		aModel.cursor++
 		if aModel.cursor >= len(aModel.Items) {

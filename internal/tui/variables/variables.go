@@ -32,5 +32,6 @@ var (
 )
 
 /* Tea.Msg */
-// Used to like inner tea.WindowSizeMsg. Bug with overlap with ParentModel
-type InitAppModel struct{}
+type UpdateAppChosen struct {
+	Application structures.Application
+}

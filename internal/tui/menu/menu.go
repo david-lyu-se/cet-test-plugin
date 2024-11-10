@@ -41,7 +41,6 @@ type primary struct {
 	appChosen    structures.Application
 	repoChosen   string
 	pluginChosen string
-	isEnter      bool
 }
 
 func (pModel primary) Init() tea.Cmd {
@@ -53,10 +52,12 @@ func (pModel primary) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case variables.UpdateAppChosen:
+		pModel.appChosen = msg.Application
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, variables.Keymap.Enter):
-			pModel.goToSubMenu()
+			return pModel.goToSubMenu()
 		case key.Matches(msg, variables.Keymap.Quit):
 			cmds = append(cmds, tea.Quit)
 		case key.Matches(msg, variables.Keymap.Down):
@@ -81,13 +82,13 @@ func (pModel primary) View() string {
 	s := strings.Builder{}
 	count := len(pModel.Items)
 
-	if pModel.isEnter {
-		s.WriteString("Test")
-	}
-
-	//Create style Title
+	//Create style Headers
 	s.WriteString(pModel.title)
 	s.WriteString((string)(count))
+
+	//User choices here:
+	s.WriteString("\n")
+	s.WriteString("App Chosen: " + pModel.appChosen.Name)
 
 	//Move this to its own function for styling create style Body
 	for i := 0; i < count; i++ {
@@ -109,11 +110,10 @@ func (pModel primary) View() string {
 
 func (pModel primary) goToSubMenu() (tea.Model, tea.Cmd) {
 	choice := pModel.Items[pModel.cursor]
-	pModel.isEnter = true
 
 	switch choice {
 	case enumApp:
-		return application.InitMenu()
+		return application.InitMenu(pModel)
 	case enumRepo:
 	case enumPlugin:
 	case enumFileSync:
