@@ -131,7 +131,6 @@ func (fm fileModel) View() string {
 	if fm.isFocus {
 		s.WriteString("Please enter you application alias")
 		s.WriteString(variables.DocStyle.Render(fm.input.View()))
-		// s.WriteString(fm.input.)
 	} else {
 		s.WriteString(fm.file.CurrentDirectory)
 		s.WriteString("\n")

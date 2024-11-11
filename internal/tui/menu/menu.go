@@ -83,25 +83,26 @@ func (pModel primary) View() string {
 	count := len(pModel.Items)
 
 	//Create style Headers
-	s.WriteString(pModel.title)
+	s.WriteString(variables.TitleStyle(pModel.title))
 	s.WriteString((string)(count))
 
 	//User choices here:
 	s.WriteString("\n")
-	s.WriteString("App Chosen: " + pModel.appChosen.Name)
+	s.WriteString(pModel.formatUserChoice())
 
 	//Move this to its own function for styling create style Body
-	for i := 0; i < count; i++ {
-		s.WriteString("\n")
-		if i == pModel.cursor {
-			s.WriteString("[x] ")
-			// color this with lipgloss
-			s.WriteString(string(pModel.Items[i]))
-		} else {
-			s.WriteString("[ ] ")
-			s.WriteString(string(pModel.Items[i]))
-		}
-	}
+	s.WriteString(pModel.formatBody())
+	// for i := 0; i < count; i++ {
+	// 	s.WriteString("\n")
+	// 	if i == pModel.cursor {
+	// 		s.WriteString("[x] ")
+	// 		// color this with lipgloss
+	// 		s.WriteString(string(pModel.Items[i]))
+	// 	} else {
+	// 		s.WriteString("[ ] ")
+	// 		s.WriteString(string(pModel.Items[i]))
+	// 	}
+	// }
 
 	return s.String()
 }
@@ -126,6 +127,41 @@ func formatHeader() string {
 	return ""
 }
 
-func formatBody() string {
-	return ""
+func (pModel primary) formatUserChoice() string {
+	s := strings.Builder{}
+	choices := []string{
+		"App Chosen: " + pModel.appChosen.Name,
+		"Monorepo path: " + pModel.repoChosen,
+		"Plugin path: " + pModel.pluginChosen,
+	}
+
+	for index, element := range choices {
+		if pModel.cursor == index {
+			s.WriteString(variables.BlinkingStyle.Render(element))
+		} else {
+			s.WriteString(element)
+		}
+		if index < len(choices)-1 {
+			s.WriteString("\n")
+		}
+	}
+
+	return variables.UserChoiceStyle(s.String())
+}
+
+func (pModel primary) formatBody() string {
+	s := strings.Builder{}
+
+	for i := 0; i < len(pModel.Items); i++ {
+		s.WriteString("\n")
+		if i == pModel.cursor {
+			// color this with lipgloss
+			s.WriteString(variables.ModelSelectStyle(string(pModel.Items[i])))
+
+		} else {
+			s.WriteString(variables.ModelChoiceStyle(string(pModel.Items[i])))
+		}
+	}
+
+	return variables.ModelChoiceContainerStyle(s.String())
 }
