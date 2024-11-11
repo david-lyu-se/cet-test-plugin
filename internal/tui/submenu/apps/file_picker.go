@@ -33,11 +33,11 @@ type initFileModelMsg struct{}
 
 func InitFileModel(p *application) (tea.Model, tea.Cmd) {
 
-	if p.fp != nil {
-		return *variables.AppModel, func() tea.Msg {
-			return initFileModelMsg{}
-		}
-	}
+	// if p.fp != nil {
+	// 	return *variables.AppModel, func() tea.Msg {
+	// 		return initFileModelMsg{}
+	// 	}
+	// }
 
 	fp := filepicker.New()
 
