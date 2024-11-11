@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"strings"
+	"test-cet-wp-plugin/internal/operations"
 	"test-cet-wp-plugin/internal/tui/variables"
 	"time"
 
@@ -77,6 +78,10 @@ func (fm fileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if didSelect, path := fm.file.DidSelectFile(msg); didSelect {
 		// Get the path of the selected file.
 		fm.SelectedFile = path
+		//write to file
+		variables.Conf.MonoRepoDir = fm.file.CurrentDirectory
+		operations.WriteFile(variables.File, variables.Conf)
+
 		return fm.primary, func() tea.Msg {
 			return variables.UpdateMonoRepo{
 				Path: fm.file.CurrentDirectory,

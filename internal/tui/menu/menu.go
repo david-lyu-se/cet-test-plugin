@@ -6,6 +6,7 @@ import (
 	application "test-cet-wp-plugin/internal/tui/submenu/apps"
 	monorepo "test-cet-wp-plugin/internal/tui/submenu/mono-repo"
 	plugins "test-cet-wp-plugin/internal/tui/submenu/plugin"
+	"test-cet-wp-plugin/internal/tui/submenu/sync"
 	"test-cet-wp-plugin/internal/tui/submenu/theme"
 	"test-cet-wp-plugin/internal/tui/variables"
 
@@ -61,10 +62,13 @@ func (pModel primary) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		pModel.appChosen = msg.Application
 	case variables.UpdateMonoRepo:
 		pModel.repoChosen = msg.Path
+	//I think we can combine the two here to just pluginPath
 	case variables.UpdatePluginRepo:
 		pModel.pluginChosen = msg.Path
+		pModel.themeChosen = ""
 	case variables.UpdateThemeRepo:
 		pModel.themeChosen = msg.Path
+		pModel.pluginChosen = ""
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, variables.Keymap.Enter):
@@ -122,6 +126,15 @@ func (pModel primary) goToSubMenu() (tea.Model, tea.Cmd) {
 	case enumTheme:
 		return theme.InitFileModel(pModel)
 	case enumFileSync:
+		if pModel.appChosen.Path != "" {
+			if pModel.pluginChosen != "" {
+				return sync.InitSync(pModel.pluginChosen, pModel.appChosen, pModel)
+			} else if pModel.themeChosen != "" {
+				return sync.InitSync(pModel.themeChosen, pModel.appChosen, pModel)
+			}
+		} else {
+			//throw error here
+		}
 	}
 
 	return pModel, nil
