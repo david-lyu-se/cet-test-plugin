@@ -1,17 +1,14 @@
-package application
+package monorepo
 
 import (
 	"errors"
 	"os"
 	"strings"
-	structures "test-cet-wp-plugin/internal/model/structs"
-	"test-cet-wp-plugin/internal/operations"
 	"test-cet-wp-plugin/internal/tui/variables"
 	"time"
 
 	"github.com/charmbracelet/bubbles/filepicker"
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -19,19 +16,15 @@ type fileModel struct {
 	file         filepicker.Model
 	SelectedFile string
 	err          error
-	/* Name of App */
-	AppName string
-	input   textinput.Model
-	isFocus bool
 	/* Parent Model */
-	appModel *application
+	primary tea.Model
 }
 
 type clearErrorMsg struct{}
 
 type initFileModelMsg struct{}
 
-func InitFileModel(p *application) (tea.Model, tea.Cmd) {
+func InitFileModel(p tea.Model) (tea.Model, tea.Cmd) {
 
 	fp := filepicker.New()
 
@@ -44,17 +37,9 @@ func InitFileModel(p *application) (tea.Model, tea.Cmd) {
 	fp.ShowHidden = true
 	fp.AutoHeight = true
 
-	ti := textinput.New()
-	ti.Placeholder = "Please give app name"
-	ti.CharLimit = 50
-	ti.Width = 20
-
 	var appModel = fileModel{
-		file:     fp,
-		appModel: p,
-		input:    ti,
-		AppName:  "",
-		isFocus:  false,
+		file:    fp,
+		primary: p,
 	}
 
 	return appModel, func() tea.Msg {
@@ -72,24 +57,16 @@ func (fm fileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if fm.isFocus {
-			return fm.inputFocusKeyPress(msg)
-		} else {
-			var model tea.Model
-			model, cmd = fm.filePickerKeyPress(msg)
-			if model != nil {
-				return model, cmd
-			}
-
+		var model tea.Model
+		model, cmd = fm.filePickerKeyPress(msg)
+		if model != nil {
+			return model, cmd
 		}
 	case clearErrorMsg:
 		fm.err = nil
 	case initFileModelMsg:
 		cmds = append(cmds, fm.file.Init())
 		cmds = append(cmds, func() tea.Msg { return tea.WindowSizeMsg{Width: 100, Height: 24} })
-		if fm.AppName != "" {
-			fm.AppName = ""
-		}
 		return fm, tea.Batch(cmds...)
 	}
 
@@ -100,10 +77,11 @@ func (fm fileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if didSelect, path := fm.file.DidSelectFile(msg); didSelect {
 		// Get the path of the selected file.
 		fm.SelectedFile = path
-		fm.isFocus = true
-		fm.input.Focus()
-		cmd = func() tea.Msg { return tea.KeyMsg{} }
-		cmds = append(cmds, cmd)
+		return fm.primary, func() tea.Msg {
+			return variables.UpdateMonoRepo{
+				Path: fm.file.CurrentDirectory,
+			}
+		}
 	}
 
 	// Did the user select a disabled file?
@@ -121,22 +99,16 @@ func (fm fileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (fm fileModel) View() string {
 	var s strings.Builder
 
-	if fm.isFocus {
-		s.WriteString("Please enter you application alias")
-		s.WriteString(variables.DocStyle.Render(fm.input.View()))
+	s.WriteString(fm.file.CurrentDirectory)
+	s.WriteString("\n")
+	if fm.err != nil {
+		s.WriteString(fm.file.Styles.DisabledFile.Render(fm.err.Error()))
+	} else if fm.SelectedFile == "" {
+		s.WriteString("Pick the composer.json file in root of application")
 	} else {
-		s.WriteString(fm.file.CurrentDirectory)
-		s.WriteString("\n")
-		if fm.err != nil {
-			s.WriteString(fm.file.Styles.DisabledFile.Render(fm.err.Error()))
-		} else if fm.SelectedFile == "" {
-			s.WriteString("Pick the composer.json file in root of application")
-		} else {
-			s.WriteString("Selected file: " + fm.file.Styles.Selected.Render(fm.SelectedFile))
-		}
-		s.WriteString("\n\n" + fm.file.View() + "\n")
-
+		s.WriteString("Selected file: " + fm.file.Styles.Selected.Render(fm.SelectedFile))
 	}
+	s.WriteString("\n\n" + fm.file.View() + "\n")
 
 	return s.String()
 }
@@ -151,44 +123,10 @@ func clearErrorAfter(t time.Duration) tea.Cmd {
 	})
 }
 
-func (fm fileModel) inputFocusKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-	switch true {
-	case key.Matches(msg, variables.Keymap.Enter):
-		fm.AppName = fm.input.Value()
-		if fm.AppName != "" {
-
-			// do nothing
-			fm.isFocus = false
-			fm.input.Blur()
-
-			var app = structures.Application{
-				Name: fm.AppName,
-				Path: fm.file.CurrentDirectory,
-			}
-
-			variables.Conf.Apps = append(variables.Conf.Apps, app)
-			operations.WriteFile(variables.File, variables.Conf)
-
-			//go back to Application Menu
-			return fm.appModel, func() tea.Msg {
-				return updateListMsg{
-					Item: app,
-				}
-			}
-		}
-	case key.Matches(msg, variables.Keymap.Back):
-		fm.isFocus = false
-		fm.AppName = ""
-	}
-	fm.input, cmd = fm.input.Update(msg)
-	return fm, cmd
-}
-
 func (fm fileModel) filePickerKeyPress(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch {
 	case key.Matches(msg, variables.Keymap.Quit):
-		return fm.appModel, func() tea.Msg { return nil }
+		return fm.primary, func() tea.Msg { return nil }
 	}
 	return nil, nil
 }

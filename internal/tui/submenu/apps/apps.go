@@ -124,12 +124,6 @@ func (aModel application) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return aModel, cmd
 }
 
-// func (aModel application) formatUserChoice() string {
-// 	s := strings.Builder{}
-
-// 	return variables.UserChoiceStyle(s.String())
-// }
-
 func (aModel application) formatBody() string {
 	s := strings.Builder{}
 
@@ -145,6 +139,5 @@ func (aModel application) formatBody() string {
 		}
 
 	}
-
 	return variables.ModelChoiceContainerStyle(s.String())
 }

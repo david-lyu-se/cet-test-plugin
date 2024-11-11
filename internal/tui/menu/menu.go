@@ -4,6 +4,9 @@ import (
 	"strings"
 	structures "test-cet-wp-plugin/internal/model/structs"
 	application "test-cet-wp-plugin/internal/tui/submenu/apps"
+	monorepo "test-cet-wp-plugin/internal/tui/submenu/mono-repo"
+	plugins "test-cet-wp-plugin/internal/tui/submenu/plugin"
+	"test-cet-wp-plugin/internal/tui/submenu/theme"
 	"test-cet-wp-plugin/internal/tui/variables"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -15,14 +18,15 @@ type item string
 const (
 	enumApp      item = "Go to Application settings"
 	enumRepo     item = "Edit mono repo directory"
-	enumPlugin   item = "Edit Plugins Parent Directory"
+	enumPlugin   item = "Edit Plugins Directory"
+	enumTheme    item = "Edit Theme Plugin Directory"
 	enumFileSync item = "Execute file sync"
 )
 
 /* ----------------- Init ------------------ */
 
 func InitMenu() (tea.Model, tea.Cmd) {
-	items := []item{enumApp, enumRepo, enumPlugin, enumFileSync}
+	items := []item{enumApp, enumRepo, enumPlugin, enumTheme, enumFileSync}
 	pModel := primary{
 		Items: items,
 		title: "Main Menu:",
@@ -41,6 +45,7 @@ type primary struct {
 	appChosen    structures.Application
 	repoChosen   string
 	pluginChosen string
+	themeChosen  string
 }
 
 func (pModel primary) Init() tea.Cmd {
@@ -54,6 +59,12 @@ func (pModel primary) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case variables.UpdateAppChosen:
 		pModel.appChosen = msg.Application
+	case variables.UpdateMonoRepo:
+		pModel.repoChosen = msg.Path
+	case variables.UpdatePluginRepo:
+		pModel.pluginChosen = msg.Path
+	case variables.UpdateThemeRepo:
+		pModel.themeChosen = msg.Path
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, variables.Keymap.Enter):
@@ -92,17 +103,6 @@ func (pModel primary) View() string {
 
 	//Move this to its own function for styling create style Body
 	s.WriteString(pModel.formatBody())
-	// for i := 0; i < count; i++ {
-	// 	s.WriteString("\n")
-	// 	if i == pModel.cursor {
-	// 		s.WriteString("[x] ")
-	// 		// color this with lipgloss
-	// 		s.WriteString(string(pModel.Items[i]))
-	// 	} else {
-	// 		s.WriteString("[ ] ")
-	// 		s.WriteString(string(pModel.Items[i]))
-	// 	}
-	// }
 
 	return s.String()
 }
@@ -116,15 +116,15 @@ func (pModel primary) goToSubMenu() (tea.Model, tea.Cmd) {
 	case enumApp:
 		return application.InitMenu(pModel)
 	case enumRepo:
+		return monorepo.InitFileModel(pModel)
 	case enumPlugin:
+		return plugins.InitFileModel(pModel)
+	case enumTheme:
+		return theme.InitFileModel(pModel)
 	case enumFileSync:
 	}
 
 	return pModel, nil
-}
-
-func formatHeader() string {
-	return ""
 }
 
 func (pModel primary) formatUserChoice() string {
@@ -133,6 +133,7 @@ func (pModel primary) formatUserChoice() string {
 		"App Chosen: " + pModel.appChosen.Name,
 		"Monorepo path: " + pModel.repoChosen,
 		"Plugin path: " + pModel.pluginChosen,
+		"Theme path: " + pModel.themeChosen,
 	}
 
 	for index, element := range choices {

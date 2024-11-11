@@ -35,3 +35,15 @@ var (
 type UpdateAppChosen struct {
 	Application structures.Application
 }
+
+type UpdateMonoRepo struct {
+	Path string
+}
+
+type UpdatePluginRepo struct {
+	Path string
+}
+
+type UpdateThemeRepo struct {
+	Path string
+}
