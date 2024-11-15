@@ -29,10 +29,10 @@ func InitFileModel(p tea.Model) (tea.Model, tea.Cmd) {
 	fp := filepicker.New()
 
 	fp.AllowedTypes = []string{".txt", ".md", ".sh", ".json"}
-	if variables.Conf.WorkingDir == "" {
+	if variables.Conf.MonoRepoDir == "" {
 		fp.CurrentDirectory, _ = os.UserHomeDir()
 	} else {
-		fp.CurrentDirectory = variables.Conf.WorkingDir
+		fp.CurrentDirectory = variables.Conf.MonoRepoDir + "/theme"
 	}
 	fp.ShowHidden = true
 	fp.AutoHeight = true

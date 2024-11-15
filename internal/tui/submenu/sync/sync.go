@@ -22,10 +22,13 @@ type result struct {
 
 func InitSync(path string, app structures.Application, primary tea.Model) (tea.Model, tea.Cmd) {
 	pModel := sync{
-		parent: primary,
-		target: path,
-		source: app.Path,
+		parent:    primary,
+		source:    path,
+		target:    app.Path,
+		isTheme:   strings.Contains(path, "theme"),
+		toggleNPM: false,
 	}
+	// need to check target and source see if it is valid destination
 
 	return pModel, nil
 }
@@ -35,8 +38,10 @@ type sync struct {
 	parent     tea.Model
 	target     string
 	source     string
+	isTheme    bool
 	hasStarted bool
 	error      error
+	toggleNPM  bool
 
 	spinner spinner.Model
 	results []result
@@ -76,3 +81,22 @@ func (pModel sync) View() string {
 }
 
 /* --------------- Helpers ---------------- */
+func themeStart() {
+	// Get theme
+	// check for vendor or lib
+	// if it doesn't exist compser install.
+	// are we npm installing here? Nope should happen already
+}
+
+func pluginStart() {
+	// Get plugins
+	// check for vendor or lib
+	// if it doesn't exist composer install.
+	// go to block lib
+	// grab all the plugins
+	// npm install? eahc plugin
+}
+
+func rsync() {
+	// run rsync to application
+}

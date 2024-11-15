@@ -32,6 +32,9 @@ var (
 )
 
 /* Tea.Msg */
+type UpdateWorkDirChosen struct {
+	Path string
+}
 type UpdateAppChosen struct {
 	Application structures.Application
 }

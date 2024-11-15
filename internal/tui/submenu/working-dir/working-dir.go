@@ -1,9 +1,10 @@
-package plugins
+package workingDir
 
 import (
 	"errors"
 	"os"
 	"strings"
+	"test-cet-wp-plugin/internal/operations"
 	"test-cet-wp-plugin/internal/tui/variables"
 	"time"
 
@@ -29,10 +30,10 @@ func InitFileModel(p tea.Model) (tea.Model, tea.Cmd) {
 	fp := filepicker.New()
 
 	fp.AllowedTypes = []string{".txt", ".md", ".sh", ".json"}
-	if variables.Conf.MonoRepoDir == "" {
+	if variables.Conf.WorkingDir == "" {
 		fp.CurrentDirectory, _ = os.UserHomeDir()
 	} else {
-		fp.CurrentDirectory = variables.Conf.MonoRepoDir
+		fp.CurrentDirectory = variables.Conf.WorkingDir
 	}
 	fp.ShowHidden = true
 	fp.AutoHeight = true
@@ -75,9 +76,14 @@ func (fm fileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Did the user select a file?
 	if didSelect, path := fm.file.DidSelectFile(msg); didSelect {
+		// Get the path of the selected file.
 		fm.SelectedFile = path
+		//write to file
+		variables.Conf.WorkingDir = fm.file.CurrentDirectory
+		operations.WriteFile(variables.File, variables.Conf)
+
 		return fm.primary, func() tea.Msg {
-			return variables.UpdatePluginRepo{
+			return variables.UpdateWorkDirChosen{
 				Path: fm.file.CurrentDirectory,
 			}
 		}

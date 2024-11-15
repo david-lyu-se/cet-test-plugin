@@ -8,6 +8,7 @@ import (
 	plugins "test-cet-wp-plugin/internal/tui/submenu/plugin"
 	"test-cet-wp-plugin/internal/tui/submenu/sync"
 	"test-cet-wp-plugin/internal/tui/submenu/theme"
+	workingDir "test-cet-wp-plugin/internal/tui/submenu/working-dir"
 	"test-cet-wp-plugin/internal/tui/variables"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -17,6 +18,7 @@ import (
 type item string
 
 const (
+	enumWorkDir  item = "Set base working directory"
 	enumApp      item = "Go to Application settings"
 	enumRepo     item = "Edit mono repo directory"
 	enumPlugin   item = "Edit Plugins Directory"
@@ -27,7 +29,7 @@ const (
 /* ----------------- Init ------------------ */
 
 func InitMenu() (tea.Model, tea.Cmd) {
-	items := []item{enumApp, enumRepo, enumPlugin, enumTheme, enumFileSync}
+	items := []item{enumWorkDir, enumApp, enumRepo, enumPlugin, enumTheme, enumFileSync}
 	pModel := primary{
 		Items: items,
 		title: "Main Menu:",
@@ -43,10 +45,11 @@ type primary struct {
 	cursor int
 	choice item
 	// application information
-	appChosen    structures.Application
-	repoChosen   string
-	pluginChosen string
-	themeChosen  string
+	appChosen     structures.Application
+	repoChosen    string
+	pluginChosen  string
+	themeChosen   string
+	workDirChosen string
 }
 
 func (pModel primary) Init() tea.Cmd {
@@ -58,6 +61,8 @@ func (pModel primary) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case variables.UpdateWorkDirChosen:
+		pModel.workDirChosen = msg.Path
 	case variables.UpdateAppChosen:
 		pModel.appChosen = msg.Application
 	case variables.UpdateMonoRepo:
@@ -117,6 +122,8 @@ func (pModel primary) goToSubMenu() (tea.Model, tea.Cmd) {
 	choice := pModel.Items[pModel.cursor]
 
 	switch choice {
+	case enumWorkDir:
+		return workingDir.InitFileModel(pModel)
 	case enumApp:
 		return application.InitMenu(pModel)
 	case enumRepo:
@@ -143,6 +150,7 @@ func (pModel primary) goToSubMenu() (tea.Model, tea.Cmd) {
 func (pModel primary) formatUserChoice() string {
 	s := strings.Builder{}
 	choices := []string{
+		"Working Directory" + pModel.workDirChosen,
 		"App Chosen: " + pModel.appChosen.Name,
 		"Monorepo path: " + pModel.repoChosen,
 		"Plugin path: " + pModel.pluginChosen,
