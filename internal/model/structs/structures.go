@@ -26,7 +26,6 @@ type ConfFile struct {
 	Apps        Applications
 	MonoRepoDir string
 	PluginDir   string
-	ThemeDir    string
 	// For file picker start directory. Change this manually
 	WorkingDir string
 }

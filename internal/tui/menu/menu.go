@@ -7,7 +7,6 @@ import (
 	monorepo "test-cet-wp-plugin/internal/tui/submenu/mono-repo"
 	plugins "test-cet-wp-plugin/internal/tui/submenu/plugin"
 	"test-cet-wp-plugin/internal/tui/submenu/sync"
-	"test-cet-wp-plugin/internal/tui/submenu/theme"
 	workingDir "test-cet-wp-plugin/internal/tui/submenu/working-dir"
 	"test-cet-wp-plugin/internal/tui/variables"
 
@@ -21,15 +20,14 @@ const (
 	enumWorkDir  item = "Set base working directory"
 	enumApp      item = "Go to Application settings"
 	enumRepo     item = "Edit mono repo directory"
-	enumPlugin   item = "Edit Plugins Directory"
-	enumTheme    item = "Edit Theme Plugin Directory"
+	enumPlugin   item = "Choose Plugins Directory"
 	enumFileSync item = "Execute file sync"
 )
 
 /* ----------------- Init ------------------ */
 
 func InitMenu() (tea.Model, tea.Cmd) {
-	items := []item{enumWorkDir, enumApp, enumRepo, enumPlugin, enumTheme, enumFileSync}
+	items := []item{enumWorkDir, enumApp, enumRepo, enumPlugin, enumFileSync}
 	pModel := primary{
 		Items: items,
 		title: "Main Menu:",
@@ -48,7 +46,6 @@ type primary struct {
 	appChosen     structures.Application
 	repoChosen    string
 	pluginChosen  string
-	themeChosen   string
 	workDirChosen string
 }
 
@@ -67,13 +64,8 @@ func (pModel primary) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		pModel.appChosen = msg.Application
 	case variables.UpdateMonoRepo:
 		pModel.repoChosen = msg.Path
-	//I think we can combine the two here to just pluginPath
 	case variables.UpdatePluginRepo:
 		pModel.pluginChosen = msg.Path
-		pModel.themeChosen = ""
-	case variables.UpdateThemeRepo:
-		pModel.themeChosen = msg.Path
-		pModel.pluginChosen = ""
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, variables.Keymap.Enter):
@@ -130,15 +122,9 @@ func (pModel primary) goToSubMenu() (tea.Model, tea.Cmd) {
 		return monorepo.InitFileModel(pModel)
 	case enumPlugin:
 		return plugins.InitFileModel(pModel)
-	case enumTheme:
-		return theme.InitFileModel(pModel)
 	case enumFileSync:
-		if pModel.appChosen.Path != "" {
-			if pModel.pluginChosen != "" {
-				return sync.InitSync(pModel.pluginChosen, pModel.appChosen, pModel)
-			} else if pModel.themeChosen != "" {
-				return sync.InitSync(pModel.themeChosen, pModel.appChosen, pModel)
-			}
+		if pModel.appChosen.Path != "" && pModel.pluginChosen != "" {
+			return sync.InitSync(pModel.pluginChosen, pModel.appChosen, pModel)
 		} else {
 			//throw error here
 		}
@@ -154,7 +140,6 @@ func (pModel primary) formatUserChoice() string {
 		"App Chosen: " + pModel.appChosen.Name,
 		"Monorepo path: " + pModel.repoChosen,
 		"Plugin path: " + pModel.pluginChosen,
-		"Theme path: " + pModel.themeChosen,
 	}
 
 	for index, element := range choices {
