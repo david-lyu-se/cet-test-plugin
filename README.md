@@ -1,3 +1,8 @@
+# WIP
+- Need to add help keys
+- Need to add P key to file picker
+- Need to add cmds to rsync
+
 # We want:
 # - to check if file exists in ~/.cet-wp-plugins ✔️
 #  - If not create file environment.json ✔️
