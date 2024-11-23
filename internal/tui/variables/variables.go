@@ -50,3 +50,7 @@ type UpdatePluginRepo struct {
 type UpdateThemeRepo struct {
 	Path string
 }
+
+/* Tea Msg for sync */
+
+type InitSync struct{}
