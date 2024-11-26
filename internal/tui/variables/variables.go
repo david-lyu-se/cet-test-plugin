@@ -31,7 +31,7 @@ var (
 	WindowSize tea.WindowSizeMsg
 )
 
-/* Tea.Msg */
+/* Tea.Msg for main menu */
 type UpdateWorkDirChosen struct {
 	Path string
 }
