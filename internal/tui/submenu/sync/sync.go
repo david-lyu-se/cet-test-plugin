@@ -1,14 +1,14 @@
 package sync
 
 import (
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/spinner"
+	tea "github.com/charmbracelet/bubbletea"
+	"os/exec"
 	"strings"
 	structures "test-cet-wp-plugin/internal/model/structs"
 	"test-cet-wp-plugin/internal/tui/variables"
 	"time"
-
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 // Not the model struct
@@ -86,6 +86,7 @@ func themeStart() {
 	// check for vendor or lib
 	// if it doesn't exist compser install.
 	// are we npm installing here? Nope should happen already
+	exec.Command("")
 }
 
 func pluginStart() {
@@ -95,6 +96,7 @@ func pluginStart() {
 	// go to block lib
 	// grab all the plugins
 	// npm install? eahc plugin
+
 }
 
 func rsync() {
