@@ -28,7 +28,7 @@ func InitFileModel(p tea.Model) (tea.Model, tea.Cmd) {
 
 	fp := filepicker.New()
 
-	fp.AllowedTypes = []string{".txt", ".md", ".sh", ".json"}
+	fp.AllowedTypes = []string{".json"}
 	if variables.Conf.MonoRepoDir == "" {
 		fp.CurrentDirectory, _ = os.UserHomeDir()
 	} else {

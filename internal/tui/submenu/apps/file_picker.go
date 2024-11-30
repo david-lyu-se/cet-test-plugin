@@ -35,7 +35,7 @@ func InitFileModel(p *application) (tea.Model, tea.Cmd) {
 
 	fp := filepicker.New()
 
-	fp.AllowedTypes = []string{".txt", ".md", ".sh", ".json"}
+	fp.AllowedTypes = []string{".json"}
 	if variables.Conf.WorkingDir == "" {
 		fp.CurrentDirectory, _ = os.UserHomeDir()
 	} else {
