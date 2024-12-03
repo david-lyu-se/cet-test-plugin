@@ -29,8 +29,12 @@ const (
 func InitMenu() (tea.Model, tea.Cmd) {
 	items := []item{enumWorkDir, enumApp, enumRepo, enumPlugin, enumFileSync}
 	pModel := primary{
-		Items: items,
-		title: "Main Menu:",
+		Items:         items,
+		title:         "Main Menu:",
+		appChosen:     variables.Conf.AppChosen,
+		repoChosen:    variables.Conf.MonoRepoDir,
+		pluginChosen:  variables.Conf.PluginDir,
+		workDirChosen: variables.Conf.WorkingDir,
 	}
 
 	return pModel, nil

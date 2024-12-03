@@ -138,6 +138,8 @@ func (fm fileModel) View() string {
 
 	}
 
+	s.WriteString(variables.FilePickerKeyHelper())
+
 	return s.String()
 }
 

@@ -28,4 +28,5 @@ type ConfFile struct {
 	PluginDir   string
 	// For file picker start directory. Change this manually
 	WorkingDir string
+	AppChosen  Application
 }

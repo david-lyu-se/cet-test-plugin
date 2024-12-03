@@ -115,6 +115,8 @@ func (fm fileModel) View() string {
 	}
 	s.WriteString("\n\n" + fm.file.View() + "\n")
 
+	s.WriteString(variables.FilePickerKeyHelper())
+
 	return s.String()
 }
 

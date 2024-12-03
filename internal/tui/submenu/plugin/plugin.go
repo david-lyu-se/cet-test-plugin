@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"strings"
+	"test-cet-wp-plugin/internal/operations"
 	"test-cet-wp-plugin/internal/tui/variables"
 	"time"
 
@@ -76,6 +77,8 @@ func (fm fileModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Did the user select a file?
 	if didSelect, path := fm.file.DidSelectFile(msg); didSelect {
 		fm.SelectedFile = path
+		variables.Conf.PluginDir = fm.file.CurrentDirectory
+		operations.WriteFile(variables.File, variables.Conf)
 		return fm.primary, func() tea.Msg {
 			return variables.UpdatePluginRepo{
 				Path: fm.file.CurrentDirectory,
@@ -108,6 +111,8 @@ func (fm fileModel) View() string {
 		s.WriteString("Selected file: " + fm.file.Styles.Selected.Render(fm.SelectedFile))
 	}
 	s.WriteString("\n\n" + fm.file.View() + "\n")
+
+	s.WriteString(variables.FilePickerKeyHelper())
 
 	return s.String()
 }

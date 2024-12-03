@@ -1,6 +1,10 @@
 package variables
 
-import "github.com/charmbracelet/bubbles/key"
+import (
+	"strings"
+
+	"github.com/charmbracelet/bubbles/key"
+)
 
 type keymap struct {
 	Create key.Binding
@@ -47,4 +51,13 @@ var Keymap = keymap{
 		key.WithKeys("up", "k"),
 		key.WithHelp("k", "up"),
 	),
+}
+
+func FilePickerKeyHelper() string {
+	var s strings.Builder
+
+	s.WriteString("Keymaps: \n")
+	s.WriteString("Enter - Pick File; Left/Right - Move in/out file; Up/Down")
+
+	return s.String()
 }

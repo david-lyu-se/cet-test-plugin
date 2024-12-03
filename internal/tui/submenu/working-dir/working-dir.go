@@ -114,7 +114,7 @@ func (fm fileModel) View() string {
 		s.WriteString("Selected file: " + fm.file.Styles.Selected.Render(fm.SelectedFile))
 	}
 	s.WriteString("\n\n" + fm.file.View() + "\n")
-
+	s.WriteString(variables.FilePickerKeyHelper())
 	return s.String()
 }
 
