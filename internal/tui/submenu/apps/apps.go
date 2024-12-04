@@ -3,6 +3,7 @@ package application
 import (
 	"strings"
 	structures "test-cet-wp-plugin/internal/model/structs"
+	"test-cet-wp-plugin/internal/operations"
 	"test-cet-wp-plugin/internal/tui/variables"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -72,6 +73,8 @@ func (aModel application) View() string {
 	s.WriteString("\n")
 	s.WriteString(aModel.formatBody())
 
+	s.WriteString("\n Keymaps: \n")
+	s.WriteString("Enter - Pick App; Up/Dowm; c - create app")
 	return s.String()
 }
 
@@ -100,6 +103,8 @@ func (aModel application) handleKeyInputs(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		aModel.hasTryEdit = true
 	// Goes back to primary menu with Application information
 	case key.Matches(msg, variables.Keymap.Enter):
+		variables.Conf.AppChosen = aModel.Items[aModel.cursor]
+		operations.WriteFile(variables.File, variables.Conf)
 		cmd = func() tea.Msg {
 			return variables.UpdateAppChosen{
 				Application: aModel.Items[aModel.cursor],
