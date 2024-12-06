@@ -18,6 +18,8 @@ type result struct {
 	emoji    string
 }
 
+type complete struct{}
+
 /* ----------------- Init ------------------ */
 
 func InitSync(path string, app structures.Application, primary tea.Model) (tea.Model, tea.Cmd) {
@@ -81,24 +83,38 @@ func (pModel sync) View() string {
 }
 
 /* --------------- Helpers ---------------- */
-func themeStart() {
+func (pModel sync) themeStart() {
 	// Get theme
 	// check for vendor or lib
 	// if it doesn't exist compser install.
 	// are we npm installing here? Nope should happen already
-	exec.Command("")
+	target := pModel.target + "/themes"
+	source := pModel.source
+	rsync(source, target)
 }
 
-func pluginStart() {
+func (pModel sync) pluginStart() {
 	// Get plugins
 	// check for vendor or lib
 	// if it doesn't exist composer install.
 	// go to block lib
 	// grab all the plugins
 	// npm install? eahc plugin
+	target := pModel.target + "/plugins"
+	source := pModel.source
+	rsync(source, target)
 
 }
 
-func rsync() {
+func rsync(source string, destination string) tea.Cmd {
 	// run rsync to application
+	cmd := exec.Command("rsync -av --exclude 'node_modules' ", source, destination)
+	err := cmd.Run()
+
+	if err != nil {
+		//handle error
+	}
+	return func() tea.Msg {
+		return complete{}
+	}
 }
