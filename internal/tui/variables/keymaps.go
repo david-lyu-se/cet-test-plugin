@@ -15,6 +15,7 @@ type keymap struct {
 	Quit   key.Binding
 	Down   key.Binding
 	Up     key.Binding
+	Toggle key.Binding
 }
 
 // Keymap reusable key mappings shared across models
@@ -50,6 +51,10 @@ var Keymap = keymap{
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),
 		key.WithHelp("k", "up"),
+	),
+	Toggle: key.NewBinding(
+		key.WithKeys("toggle", "t"),
+		key.WithHelp("t", "toggle"),
 	),
 }
 

@@ -24,11 +24,11 @@ type complete struct{}
 
 func InitSync(path string, app structures.Application, primary tea.Model) (tea.Model, tea.Cmd) {
 	pModel := sync{
-		parent:    primary,
-		source:    path,
-		target:    app.Path,
-		isTheme:   strings.Contains(path, "theme"),
-		toggleNPM: false,
+		parent:           primary,
+		source:           path,
+		target:           app.Path,
+		isTheme:          strings.Contains(path, "theme"),
+		isVendorIncluded: false,
 	}
 	// need to check target and source see if it is valid destination
 
@@ -37,13 +37,13 @@ func InitSync(path string, app structures.Application, primary tea.Model) (tea.M
 
 /* ----------------- Model ----------------- */
 type sync struct {
-	parent     tea.Model
-	target     string
-	source     string
-	isTheme    bool
-	hasStarted bool
-	error      error
-	toggleNPM  bool
+	parent           tea.Model
+	target           string
+	source           string
+	isTheme          bool
+	hasStarted       bool
+	error            error
+	isVendorIncluded bool
 
 	spinner spinner.Model
 	results []result
@@ -62,6 +62,8 @@ func (pModel sync) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, variables.Keymap.Enter):
 			//start deamon
+		case key.Matches(msg, variables.Keymap.Toggle):
+			pModel.isVendorIncluded = !pModel.isVendorIncluded
 		case key.Matches(msg, variables.Keymap.Quit):
 			cmds = append(cmds, tea.Quit)
 		}
@@ -75,10 +77,19 @@ func (pModel sync) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (pModel sync) View() string {
 	s := strings.Builder{}
 
+	if pModel.isVendorIncluded {
+		s.WriteString("Sync vendor is on")
+	} else {
+		s.WriteString("Sync vendor is off")
+	}
+
 	if pModel.hasStarted {
 		s.WriteString("Press enter to sync")
 	}
 
+	//help text
+	s.WriteString("\nKeymaps: \n")
+	s.WriteString("Enter - start sync; t - toggle vendor sync; q - quit")
 	return s.String()
 }
 
@@ -90,7 +101,7 @@ func (pModel sync) themeStart() {
 	// are we npm installing here? Nope should happen already
 	target := pModel.target + "/themes"
 	source := pModel.source
-	rsync(source, target)
+	pModel.rsync(source, target)
 }
 
 func (pModel sync) pluginStart() {
@@ -102,13 +113,15 @@ func (pModel sync) pluginStart() {
 	// npm install? eahc plugin
 	target := pModel.target + "/plugins"
 	source := pModel.source
-	rsync(source, target)
+	pModel.rsync(source, target)
 
 }
 
-func rsync(source string, destination string) tea.Cmd {
+func (pModel sync) rsync(source string, destination string) tea.Cmd {
 	// run rsync to application
-	cmd := exec.Command("rsync -av --exclude 'node_modules' ", source, destination)
+
+	vendorExclude := pModel.checkComposer()
+	cmd := exec.Command("rsync -av --exclude 'node_modules"+vendorExclude+"' ", source, destination)
 	err := cmd.Run()
 
 	if err != nil {
@@ -117,4 +130,18 @@ func rsync(source string, destination string) tea.Cmd {
 	return func() tea.Msg {
 		return complete{}
 	}
+}
+
+func (pModel sync) checkComposer() string {
+	s := strings.Builder{}
+
+	//check to see if user wants to include composer in ecosystem, false
+	//check composer exists in wp ecosystem
+
+	//check if vendor exists in plugin
+	if !pModel.isVendorIncluded {
+		s.WriteString("vendor lib")
+	}
+
+	return s.String()
 }
