@@ -1,14 +1,16 @@
 package sync
 
 import (
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/spinner"
-	tea "github.com/charmbracelet/bubbletea"
+	"os"
 	"os/exec"
 	"strings"
 	structures "test-cet-wp-plugin/internal/model/structs"
 	"test-cet-wp-plugin/internal/tui/variables"
 	"time"
+
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/spinner"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // Not the model struct
@@ -62,6 +64,7 @@ func (pModel sync) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, variables.Keymap.Enter):
 			//start deamon
+			pModel.Init()
 		case key.Matches(msg, variables.Keymap.Toggle):
 			pModel.isVendorIncluded = !pModel.isVendorIncluded
 		case key.Matches(msg, variables.Keymap.Quit):
@@ -94,34 +97,22 @@ func (pModel sync) View() string {
 }
 
 /* --------------- Helpers ---------------- */
-func (pModel sync) themeStart() {
-	// Get theme
-	// check for vendor or lib
-	// if it doesn't exist compser install.
-	// are we npm installing here? Nope should happen already
-	target := pModel.target + "/themes"
-	source := pModel.source
-	pModel.rsync(source, target)
+func (pModel sync) init() {
+
+	if pModel.isTheme {
+		pModel.rsync("vendor")
+	} else {
+		pModel.rsync("lib")
+	}
 }
 
-func (pModel sync) pluginStart() {
-	// Get plugins
-	// check for vendor or lib
-	// if it doesn't exist composer install.
-	// go to block lib
-	// grab all the plugins
-	// npm install? eahc plugin
-	target := pModel.target + "/plugins"
-	source := pModel.source
-	pModel.rsync(source, target)
-
-}
-
-func (pModel sync) rsync(source string, destination string) tea.Cmd {
+func (pModel sync) rsync(vendorName string) tea.Cmd {
 	// run rsync to application
-
-	vendorExclude := pModel.checkComposer()
-	cmd := exec.Command("rsync -av --exclude 'node_modules"+vendorExclude+"' ", source, destination)
+	vendorExclude := pModel.checkComposer(vendorName)
+	cmd := exec.Command(
+		"rsync -av --exclude 'node_modules"+vendorExclude+"' ",
+		pModel.source,
+		pModel.source)
 	err := cmd.Run()
 
 	if err != nil {
@@ -132,15 +123,26 @@ func (pModel sync) rsync(source string, destination string) tea.Cmd {
 	}
 }
 
-func (pModel sync) checkComposer() string {
+func (pModel sync) checkComposer(vendorName string) string {
 	s := strings.Builder{}
-
+	overWriteVendorIncluded := false
 	//check to see if user wants to include composer in ecosystem, false
 	//check composer exists in wp ecosystem
+	vendorPath := pModel.source + "/" + vendorName
+	_, err := os.Stat(vendorPath)
+	if err != nil {
+		runComposerCmd := exec.Command("composer install --working-dir=" + vendorPath)
+		err = runComposerCmd.Run()
 
+		if err != nil {
+			//handle no composer error;
+			return ""
+		}
+		overWriteVendorIncluded = true
+	}
 	//check if vendor exists in plugin
-	if !pModel.isVendorIncluded {
-		s.WriteString("vendor lib")
+	if !pModel.isVendorIncluded || overWriteVendorIncluded {
+		s.WriteString(" vendor lib")
 	}
 
 	return s.String()
