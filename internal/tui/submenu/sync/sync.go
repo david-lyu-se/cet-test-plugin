@@ -64,11 +64,13 @@ func (pModel sync) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, variables.Keymap.Enter):
 			//start deamon
-			pModel.Init()
+			pModel.initDaemon()
 		case key.Matches(msg, variables.Keymap.Toggle):
 			pModel.isVendorIncluded = !pModel.isVendorIncluded
 		case key.Matches(msg, variables.Keymap.Quit):
-			cmds = append(cmds, tea.Quit)
+			return pModel.parent, func() tea.Msg {
+				return nil
+			}
 		}
 	}
 
@@ -97,7 +99,7 @@ func (pModel sync) View() string {
 }
 
 /* --------------- Helpers ---------------- */
-func (pModel sync) init() {
+func (pModel sync) initDaemon() {
 
 	if pModel.isTheme {
 		pModel.rsync("vendor")
