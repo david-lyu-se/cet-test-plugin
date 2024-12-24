@@ -16,6 +16,7 @@ type keymap struct {
 	Down   key.Binding
 	Up     key.Binding
 	Toggle key.Binding
+	Pick   key.Binding
 }
 
 // Keymap reusable key mappings shared across models
@@ -56,13 +57,17 @@ var Keymap = keymap{
 		key.WithKeys("toggle", "t"),
 		key.WithHelp("t", "toggle"),
 	),
+	Pick: key.NewBinding(
+		key.WithKeys("pick","p"),
+		key.WithHelp("p","pick")
+	),
 }
 
-func FilePickerKeyHelper() string {
+func FilePickerKeyHelper(extra string = "") string {
 	var s strings.Builder
 
 	s.WriteString("Keymaps: \n")
-	s.WriteString("Enter - Pick File; Left/Right - Move in/out file; Up/Down")
-
+	s.WriteString("Enter - Pick File; Left/Right - Move in/out file; Up/Down; ")
+	s.WriteString(extra)
 	return s.String()
 }
